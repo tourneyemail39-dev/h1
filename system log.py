@@ -32,7 +32,6 @@ public class DES {
 
 #md5
 
-package com.mycompany.ins_practical;
 
 import java.security.MessageDigest;
 
@@ -56,7 +55,6 @@ public class MD5 {
 
 #rsa 
 
-package com.mycompany.ins_practical;
 
 
 import java.math.BigInteger;
@@ -451,4 +449,5 @@ public class DiffieHellman {
         System.out.println("Shared Secret Key: " + key);
     }
 }
+
 
