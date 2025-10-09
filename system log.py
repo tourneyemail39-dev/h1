@@ -1,5 +1,4 @@
-des 
-package com.mycompany.ins_practical;
+#des 
 
 import javax.crypto.*;
 import java.security.*;
@@ -31,7 +30,7 @@ public class DES {
     }
 }
 
-md5
+#md5
 
 package com.mycompany.ins_practical;
 
@@ -54,7 +53,9 @@ public class MD5 {
         }
     }
 }
-rsa 
+
+#rsa 
+
 package com.mycompany.ins_practical;
 
 
@@ -111,12 +112,9 @@ public class RSA {
         sc.close();
     }
 }
-monoalpha
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package com.mycompany.ins_practical;
+
+#monoalpha
+
 
 import java.util.Scanner;
 
@@ -154,11 +152,6 @@ public class MonoalphabeticCipher {
     }
 }
 railfence
-
-package com.mycompany.ins_practical;
-
-import java.util.*;
-
 
 import java.util.*;
 
@@ -208,9 +201,9 @@ public class RailfenceCipher {
         rf.encode(pt, key);
     }
 }
-ceaSEcipher
 
-package com.mycompany.ins_practical;
+#ceaSEcipher
+
 
 import java.util.Scanner;
 
@@ -249,8 +242,9 @@ public class CeaserCipher {
         System.out.println("PlainText: " + cc.decode(ct, key));
     }
 }
-symmetricswitch
-package com.mycompany.ins_practical;
+
+#symmetricswitch
+
 
 import javax.crypto.*;
 import java.util.Base64;
@@ -290,10 +284,7 @@ public class SymmetricSwitch {
         System.out.println("Decrypted  : " + dec);
     }
 }
-aes
-
-package com.mycompany.ins_practical;
-
+#aes
 
 import javax.crypto.*;
 import java.security.*;
@@ -325,9 +316,8 @@ public class AES {
         System.out.println("Decrypted message: " + decText);
     }
 }
-vernam
 
-package com.mycompany.ins_practical;
+#vernam
 
 import java.util.Scanner;
 
@@ -368,9 +358,7 @@ public class VernamCipher {
     }
 }
 
-simple columnar
-
-package com.mycompany.ins_practical;
+#simple columnar
 
 import java.util.*;
 
@@ -432,3 +420,35 @@ public class SimplecolumnarCipher {
         new SimplecolumnarCipher().encode(pt, row, col);
     }
 }
+
+
+#deffihelleman
+
+import java.math.BigInteger;
+import java.util.Scanner;
+
+public class DiffieHellman {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter prime q: ");
+        BigInteger q = sc.nextBigInteger();
+        System.out.print("Enter primitive root a: ");
+        BigInteger a = sc.nextBigInteger();
+
+        System.out.print("Enter private key XA: ");
+        BigInteger XA = sc.nextBigInteger();
+        BigInteger YA = a.modPow(XA, q);
+        System.out.println("Public key YA: " + YA);
+
+        System.out.print("Enter private key XB: ");
+        BigInteger XB = sc.nextBigInteger();
+        BigInteger YB = a.modPow(XB, q);
+        System.out.println("Public key YB: " + YB);
+
+        // Shared secret
+        BigInteger key = YB.modPow(XA, q); // same as YA.modPow(XB,q)
+        System.out.println("Shared Secret Key: " + key);
+    }
+}
+
