@@ -1,232 +1,434 @@
-#Practical 1 : 
-# Algebra of complex numbers
-print("Menu :")
-x1 = int(input("Enter x1 : "))
-y1 = int(input("Enter y1 : "))
-z1 = complex(x1,y1)
+des 
+package com.mycompany.ins_practical;
 
-x2 = int(input("Enter x2 : "))
-y2 = int(input("Enter y2 : "))
-z2 = complex(x2,y2)
+import javax.crypto.*;
+import java.security.*;
+import java.util.Base64;
 
-while True:
-    print("\n1.Addition \n2.Sub \n3.Multiplication \n4.Multiplication of conjugate \n5.Division \n6.Exit")
-    op = input("\nEnter your choice :")
-    if op=='1':
-        print('Additon :',z1+z2)     
+public class DES {
+    public static void main(String[] args) throws Exception {
 
-    elif op=='2':
-        print('Subtraction  :',z1-z2)
+        // DES key generate
+        SecretKey key = KeyGenerator.getInstance("DES").generateKey();
 
-    elif op=='3':
-        print('Multiplication : ',z1*z2)
+        // Cipher object
+        Cipher cipher = Cipher.getInstance("DES");
 
-    elif op=='4':
-        c1 = z1.conjugate()
-        c2 = z2.conjugate()
-        print('Multiplication of conjugate :',(z1*c1).real)
-        print('Multiplication of conjugate :',(z2*c2).real)
+        String message = "This message is important";
+        byte[] encrypted, decrypted;
 
-    elif op=='5':
-        print('Division :',z1/z2)
+        // Encryption
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        encrypted = cipher.doFinal(message.getBytes());
 
-    elif op=='6':
-        print('exit..')
-        break
+        // Decryption
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        decrypted = cipher.doFinal(encrypted);
 
-    else :
-        print("Enter Correct choice :")
-        #####################
-        prac 2
-        
-import matplotlib.pyplot as plt
-import numpy as np
+        // Output
+        System.out.println("Encrypted text: " + Base64.getEncoder().encodeToString(encrypted));
+        System.out.println("Decrypted text: " + new String(decrypted));
+    }
+}
 
-def plot_vectors(z1, z2, label):
-    # plt.figure()
-    plt.plot([0, z1.real], [0, z1.imag], 'bx-', label='Original')
-    plt.plot([0, z2.real], [0, z2.imag], 'ro--', label=label)
-    plt.axhline(0, color='gray', linewidth=0.5)
-    plt.axvline(0, color='gray', linewidth=0.5)
-    plt.grid(True)
-    plt.xlabel('Real')
-    plt.ylabel('Imaginary')
-    plt.title(label)
-    plt.legend()
-    plt.axis('equal')
-    plt.xlim(-10, 10)
-    plt.ylim(-10, 10)
-    plt.show()
+md5
 
-def rotate(z, angle_deg):
-    return z * np.exp(1j * np.deg2rad(angle_deg))
+package com.mycompany.ins_practical;
 
-def scale(z, factor):
-    return z * factor
+import java.security.MessageDigest;
 
-# Input
-x = int(input("Enter real part: "))
-y = int(input("Enter imaginary part: "))
-z = complex(x, y)
-print(f"Original complex number: {z}")
+public class MD5 {
+    public static void main(String[] args) {
+        String text = "this is some string";
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] digest = md.digest(text.getBytes());
 
-# Menu Loop
-while True:
-    print("\nMain Menu:\n1. Rotate (90°, 180°, 270°)\n2. Scale (×0.5, ×1, ×1.5)\n3. Exit")
-    choice = input("Choose (1-3): ")
+            StringBuilder hash = new StringBuilder();
+            for (byte b : digest) hash.append(String.format("%02x", b & 0xff));
 
-    if choice == '1':
-        print("\nRotation Options:\n1. 90°\n2. 180°\n3. 270°")
-        r_choice = input("Choose rotation (1-3): ")
-        angles = {'1': 90, '2': 180, '3': 270}
-        if r_choice in angles:
-            angle = angles[r_choice]
-            z_rot = rotate(z, angle)
-            plot_vectors(z, z_rot, f"Rotated by {angle}°")
-        else:
-            print("Invalid rotation choice.")
-
-    elif choice == '2':
-        print("\nScaling Options:\n1. ×0.5\n2. ×1\n3. ×1.5 \n4. x2")
-        s_choice = input("Choose scaling (1-4): ")
-        factors = {'1': 0.5, '2': 1, '3': 1.5,'4':2}
-        if s_choice in factors:
-            factor = factors[s_choice]
-            z_scl = scale(z, factor)
-            plot_vectors(z, z_scl, f"Scaled ×{factor}")
-        else:
-            print("Invalid scaling choice.")
-
-    elif choice == '3':
-        print("Goodbye!")
-        break
-
-    else:
-        print("Invalid choice. Try again.")
-##############
-prac 3
-
-import numpy as np 
-
-def scalar_combination(v1,v2,a,b):
-    au=a*v1
-    bv=b*v2
-    return (au+bv)
-
-dimension=int(input("Enter the dimension : "))
-v1=np.array([int(input(f"Enter value for v1[{i+1}]:"))for i in range(dimension)])
-v2=np.array([int(input(f"Enter value for v2{i+1}]:"))for i in range(dimension)])
-
-while True:
-    print("Choose option : \n1.dot product \n2.scalar combination \n3.exit")
-    option=int(input("Enter option : "))
-    if option==1:
-        print(np.dot(v1,v2))
-    elif option==2 :
-        a=int(input("Enter scalar value for v1"))
-        b=int(input("Enter scalar value for v1"))
-        print(scalar_combination(v1,v2,a,b))
-    elif option==3:
-        print( " exiting ") 
-        break
-    else: 
-        print("invalid option ")
-
-    #######
-        prac 5
-import numpy as np 
-from scipy.linalg import eig
-
-rows=int(input("Enter number of rows:"))
-print("Enter matrix elements row by row seperated by space")
-
-matrix=[]
-for i in range(rows):
-    row=list(map(int,input(f"Rows {i+1}:").split()))
-    matrix.append(row)
-
-A=np.array(matrix)
-print(A)
-eigenvalue,eigenvector=eig(A)
-print(eigenvalue)
-print(eigenvector)
-#####
-prac 6
-
-import numpy as np
-import sympy as sp
-
-# Take matrix size input
-rows = int(input("Enter number of rows: "))
-print("Enter the matrix elements row by row (space separated):")
-matrix = []
-for i in range(rows):
-    row = list(map(int, input(f"Row {i+1}: ").split(',')))
-    matrix.append(row)
-
-# Convert to Sympy Matrix
-A = sp.Matrix(matrix)
-
-# LU decomposition
-_, U, _ = A.LUdecomposition()
-
-print("\nOriginal Matrix A:")
-sp.pprint(A)
-
-print("\nRow Echelon Form (U Matrix):")
-sp.pprint(U)
-print("\nRank of Matrix A:", int(A.rank()))
+            System.out.println("Input: " + text);
+            System.out.println("MD5 Hash: " + hash);
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+        }
+    }
+}
+rsa 
+package com.mycompany.ins_practical;
 
 
-####
-prac 7
-import numpy as np
+import java.math.BigInteger;
+import java.util.*;
 
-# Function to create vectors
-def create_vector(dimension):
-    vector = []
-    for i in range(dimension):
-        element = float(input("Enter the element of the vector: "))
-        vector.append(element)
-    return vector
+public class RSA {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
 
-# Input for vector dimension
-dimension = int(input("Enter the vector dimension: "))
+        // 1. Input primes
+        System.out.print("Enter prime p: ");
+        BigInteger p = sc.nextBigInteger();
+        System.out.print("Enter prime q: ");
+        BigInteger q = sc.nextBigInteger();
 
-print("First vector:")
-u = np.array(create_vector(dimension))
-print(u)
+        BigInteger n = p.multiply(q);
+        BigInteger phi = (p.subtract(BigInteger.ONE)).multiply(q.subtract(BigInteger.ONE));
 
-print("Second vector:")
-v = np.array(create_vector(dimension))
-print(v)
+        // 2. Input public key e
+        BigInteger e;
+        while (true) {
+            System.out.print("Enter e (1<e<phi, coprime with phi): ");
+            e = sc.nextBigInteger();
+            if (phi.gcd(e).equals(BigInteger.ONE)) break;
+            System.out.println("Invalid e, try again.");
+        }
 
-# Menu-driven program
-while True:
-    print("\n1. Dot Product")
-    print("2. Projection of (u on v)")
-    print("3. Projection of (v on u)")
-    print("4. Exit")
+        // 3. Compute private key d
+        BigInteger d = e.modInverse(phi);
 
-    option = int(input("Enter your option: "))
+        System.out.println("\nPublic Key (n,e): (" + n + "," + e + ")");
+        System.out.println("Private Key d: " + d);
 
-    if option == 1:
-        dot_product = np.dot(u, v)
-        print("Dot Product =", dot_product)
+        // 4. Plaintext input
+        sc.nextLine(); // consume newline
+        System.out.print("\nEnter plaintext: ");
+        String text = sc.nextLine();
 
-    elif option == 2:
-        norm_v = np.linalg.norm(v)
-        proj_u_on_v = (np.dot(u, v) / (norm_v ** 2)) * v
-        print("Projection of u on v =", proj_u_on_v)
+        // 5. Encryption
+        List<BigInteger> encrypted = new ArrayList<>();
+        for (char ch : text.toCharArray())
+            encrypted.add(BigInteger.valueOf((int) ch).modPow(e, n));
 
-    elif option == 3:
-        norm_u = np.linalg.norm(u)
-        proj_v_on_u = (np.dot(u, v) / (norm_u ** 2)) * u
-        print("Projection of v on u =", proj_v_on_u)
+        // 6. Decryption
+        StringBuilder decrypted = new StringBuilder();
+        for (BigInteger c : encrypted)
+            decrypted.append((char) c.modPow(d, n).intValue());
 
-    elif option == 4:
-        print("Exit!!")
-        break
+        // 7. Output
+        System.out.println("\nEncrypted numbers: " + encrypted);
+        System.out.println("Decrypted text: " + decrypted);
 
-    else:
-        print("Invalid option")
+        sc.close();
+    }
+}
+monoalpha
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.ins_practical;
+
+import java.util.Scanner;
+
+public class MonoalphabeticCipher {
+
+    // Encode method
+    String encode(String text, String key) {
+        String res = "";
+        for (char c : text.toCharArray())
+            res += key.charAt(c - 'A');
+        return res;
+    }
+
+    // Decode method
+    String decode(String text, String key) {
+        String res = "";
+        for (char c : text.toCharArray())
+            res += (char) (key.indexOf(c) + 'A');
+        return res;
+    }
+
+    // Main method
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String key = "QWERTYUIOPASDFGHJKLZXCVBNM";
+
+        System.out.print("Enter Plaintext: ");
+        String pt = sc.next().toUpperCase();
+
+        MonoalphabeticCipher mc = new MonoalphabeticCipher();
+        String ct = mc.encode(pt, key);
+        System.out.println("CipherText: " + ct);
+
+        System.out.println("PlainText: " + mc.decode(ct, key));
+    }
+}
+railfence
+
+package com.mycompany.ins_practical;
+
+import java.util.*;
+
+
+import java.util.*;
+
+public class RailfenceCipher {
+
+    void encode(String pt, int key) {
+        pt = pt.toUpperCase();  // ✅ ensure uppercase
+        char[][] rail = new char[key][pt.length()];
+        for (char[] r : rail) Arrays.fill(r, '_');
+
+        boolean down = false;
+        int row = 0;
+
+        // Fill matrix in zigzag
+        for (int col = 0; col < pt.length(); col++) {
+            rail[row][col] = pt.charAt(col);
+            if (row == 0 || row == key - 1) down = !down;
+            row += down ? 1 : -1;
+        }
+
+        // ✅ Print matrix neatly
+        System.out.println("\nRail Fence Matrix:");
+        for (char[] r : rail) {
+            for (char c : r) System.out.print(c + " ");
+            System.out.println();
+        }
+
+        // Read ciphertext row-wise
+        StringBuilder ct = new StringBuilder();
+        for (char[] r : rail)
+            for (char c : r)
+                if (c != '_') ct.append(c);
+
+        System.out.println("\nCipher Text: " + ct);
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        RailfenceCipher rf = new RailfenceCipher();
+
+        System.out.print("Enter the plain text: ");
+        String pt = sc.nextLine().replaceAll(" ", "");
+
+        System.out.print("Enter the key (number of rails): ");
+        int key = sc.nextInt();
+
+        rf.encode(pt, key);
+    }
+}
+ceaSEcipher
+
+package com.mycompany.ins_practical;
+
+import java.util.Scanner;
+
+public class CeaserCipher {
+
+    // Encode method
+    String encode(String text, int key) {
+        String result = "";
+        for (char c : text.toCharArray())
+            result += (char) ((c - 'A' + key) % 26 + 'A');
+        return result;
+    }
+
+    // Decode method
+    String decode(String text, int key) {
+        String result = "";
+        for (char c : text.toCharArray())
+            result += (char) ((c - 'A' - key + 26) % 26 + 'A');
+        return result;
+    }
+
+    // Main method
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        CeaserCipher cc = new CeaserCipher();
+
+        System.out.print("Enter Plaintext: ");
+        String pt = sc.next().toUpperCase();
+
+        System.out.print("Enter Key: ");
+        int key = sc.nextInt();
+
+        String ct = cc.encode(pt, key);
+        System.out.println("CipherText: " + ct);
+
+        System.out.println("PlainText: " + cc.decode(ct, key));
+    }
+}
+symmetricswitch
+package com.mycompany.ins_practical;
+
+import javax.crypto.*;
+import java.util.Base64;
+
+public class SymmetricSwitch {
+
+    public static void main(String[] args) throws Exception {
+        // --- CHANGE THIS LINE TO SWITCH ALGORITHM ---
+        String ALG = "DES"; // use "AES" or "DES"
+        // ---------------------------------------------
+
+        // pick sensible key size automatically
+        int keySize = ALG.equals("AES") ? 128 : 56; // AES-128 or DES-56
+
+        // generate key and cipher
+        KeyGenerator kg = KeyGenerator.getInstance(ALG);
+        kg.init(keySize);
+        SecretKey key = kg.generateKey();
+
+        Cipher cipher = Cipher.getInstance(ALG); // simple transformation (JVM chooses default paddings/modes)
+
+        String message = "This message is important";
+
+        // encryption
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        byte[] encrypted = cipher.doFinal(message.getBytes());
+        String encB64 = Base64.getEncoder().encodeToString(encrypted);
+
+        // decryption
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        byte[] decrypted = cipher.doFinal(encrypted);
+        String dec = new String(decrypted);
+
+        System.out.println("Algorithm : " + ALG);
+        System.out.println("Before     : " + message);
+        System.out.println("Encrypted  : " + encB64);
+        System.out.println("Decrypted  : " + dec);
+    }
+}
+aes
+
+package com.mycompany.ins_practical;
+
+
+import javax.crypto.*;
+import java.security.*;
+import java.util.Base64;
+
+public class AES {
+
+    public static void main(String[] args) throws Exception {
+
+        // Generate AES key (128-bit)
+        SecretKey key = KeyGenerator.getInstance("AES").generateKey();
+
+        Cipher cipher = Cipher.getInstance("AES");
+        String message = "This message is important";
+
+        // Encryption
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        byte[] encrypted = cipher.doFinal(message.getBytes());
+        String encText = Base64.getEncoder().encodeToString(encrypted);
+
+        // Decryption
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        byte[] decrypted = cipher.doFinal(encrypted);
+        String decText = new String(decrypted);
+
+        // Output
+        System.out.println("Before Encryption: " + message);
+        System.out.println("After Encryption: " + encText);
+        System.out.println("Decrypted message: " + decText);
+    }
+}
+vernam
+
+package com.mycompany.ins_practical;
+
+import java.util.Scanner;
+
+public class VernamCipher {
+
+    String encode(String pt, String key) {
+        String res = "";
+        for (int i = 0; i < pt.length(); i++)
+            res += (char) (((pt.charAt(i) - 'A') + (key.charAt(i) - 'A')) % 26 + 'A');
+        return res;
+    }
+
+    String decode(String ct, String key) {
+        String res = "";
+        for (int i = 0; i < ct.length(); i++)
+            res += (char) (((ct.charAt(i) - 'A') - (key.charAt(i) - 'A') + 26) % 26 + 'A');
+        return res;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        VernamCipher vc = new VernamCipher();
+
+        System.out.print("Enter Plaintext: ");
+        String pt = sc.next().toUpperCase();
+
+        System.out.print("Enter Key: ");
+        String key = sc.next().toUpperCase();
+
+        if (pt.length() != key.length()) {
+            System.out.println("Key and Plaintext must have same length!");
+            return;
+        }
+
+        String ct = vc.encode(pt, key);
+        System.out.println("CipherText: " + ct);
+        System.out.println("PlainText: " + vc.decode(ct, key));
+    }
+}
+
+simple columnar
+
+package com.mycompany.ins_practical;
+
+import java.util.*;
+
+import java.util.Scanner;
+
+public class SimplecolumnarCipher {
+
+    void encode(String pt, int row, int col) {
+        Scanner sc = new Scanner(System.in);
+        char[][] mat = new char[row][col];
+        int index = 0;
+
+        // Fill matrix row-wise with padding '_'
+        for (int i = 0; i < row; i++)
+            for (int j = 0; j < col; j++)
+                mat[i][j] = index < pt.length() ? pt.charAt(index++) : '_';
+
+        // Print matrix
+        System.out.println("\nMatrix:");
+        for (char[] r : mat) {
+            for (char c : r) System.out.print(c + " ");
+            System.out.println();
+        }
+
+        // Take key input
+        System.out.print("\nEnter keys (permutation of 0-" + (col - 1) + "): ");
+        String keys = sc.next();
+        if (keys.length() != col) {
+            System.out.println("Key length must match number of columns!");
+            return;
+        }
+
+        // Build cipher text
+        StringBuilder ctext = new StringBuilder();
+        for (char k : keys.toCharArray()) { // ✅ convert String to char array
+            int key = k - '0';
+            if (key < 0 || key >= col) {
+                System.out.println("Keys out of range!");
+                return;
+            }
+            for (int i = 0; i < row; i++) ctext.append(mat[i][key]);
+        }
+
+        System.out.println("\nCipher Text: " + ctext);
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter the plain text: ");
+        String pt = sc.nextLine().replaceAll(" ", "").toLowerCase();
+
+        System.out.print("Enter the no. of rows: ");
+        int row = sc.nextInt();
+
+        System.out.print("Enter the no. of columns: ");
+        int col = sc.nextInt();
+
+        new SimplecolumnarCipher().encode(pt, row, col);
+    }
+}
