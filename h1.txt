@@ -1,0 +1,43 @@
+import 'package:flutter/material.dart';
+
+class Practical1 extends StatelessWidget {
+  const Practical1({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Practical 1"),
+
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text("Row Example",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.abc),
+              Icon(Icons.abc_outlined),
+              Icon(Icons.access_time_filled_sharp,color: Colors.red,size: 100,),
+            ],
+          ),
+          SizedBox(height: 10),
+          Text("Column Example",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.abc),
+              Icon(Icons.abc_outlined),
+              Icon(Icons.abc_rounded),
+            ],
+          )
+
+        ],
+      ),
+    );
+  }
+}
+
