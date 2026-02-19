@@ -1,34 +1,46 @@
 #des 
 
-import javax.crypto.*;
-import java.security.*;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 
 public class DES {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws NoSuchAlgorithmException,
+            NoSuchPaddingException, InvalidKeyException,
+            IllegalBlockSizeException, BadPaddingException {
 
-        // DES key generate
-        SecretKey key = KeyGenerator.getInstance("DES").generateKey();
+        Base64.Encoder encoder = Base64.getEncoder();
 
-        // Cipher object
-        Cipher cipher = Cipher.getInstance("DES");
+        // Generate DES key
+        KeyGenerator mygenerator = KeyGenerator.getInstance("DES");
+        SecretKey myDesKey = mygenerator.generateKey();
 
-        String message = "This message is important";
-        byte[] encrypted, decrypted;
+        // Create Cipher object
+        Cipher desCipher = Cipher.getInstance("DES");
 
         // Encryption
-        cipher.init(Cipher.ENCRYPT_MODE, key);
-        encrypted = cipher.doFinal(message.getBytes());
+        desCipher.init(Cipher.ENCRYPT_MODE, myDesKey);
+        byte[] myBytes = "This message is important".getBytes();
+        byte[] myEncryptedBytes = desCipher.doFinal(myBytes);
 
         // Decryption
-        cipher.init(Cipher.DECRYPT_MODE, key);
-        decrypted = cipher.doFinal(encrypted);
+        desCipher.init(Cipher.DECRYPT_MODE, myDesKey);
+        byte[] myDecryptedBytes = desCipher.doFinal(myEncryptedBytes);
 
         // Output
-        System.out.println("Encrypted text: " + Base64.getEncoder().encodeToString(encrypted));
-        System.out.println("Decrypted text: " + new String(decrypted));
+        System.out.println("Encrypted text: " + encoder.encodeToString(myEncryptedBytes));
+        System.out.println("Decrypted text: " + new String(myDecryptedBytes));
     }
 }
+ 
+
+
 
 #md5
 
@@ -36,208 +48,249 @@ public class DES {
 import java.security.MessageDigest;
 
 public class MD5 {
-    public static void main(String[] args) {
-        String text = "this is some string";
+    public static String getHash(byte[] inputBytes, String algorithm) {
+        StringBuilder hashValue = new StringBuilder();
         try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] digest = md.digest(text.getBytes());
+            // Create MessageDigest instance for given algorithm
+            MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
+            messageDigest.update(inputBytes);
 
-            StringBuilder hash = new StringBuilder();
-            for (byte b : digest) hash.append(String.format("%02x", b & 0xff));
+            // Generate the digest (hash)
+            byte[] digestedBytes = messageDigest.digest();
 
-            System.out.println("Input: " + text);
-            System.out.println("MD5 Hash: " + hash);
+            // Convert bytes to hex
+            for (byte b : digestedBytes) {
+                hashValue.append(String.format("%02x", b & 0xff));
+            }
         } catch (Exception e) {
             System.out.println("Error: " + e);
         }
+        return hashValue.toString();
+    }
+
+    public static void main(String[] args) {
+        String someString = "this is some string";
+
+        // Compute MD5 hash
+        String md5Hash = getHash(someString.getBytes(), "MD5");
+
+        System.out.println("Input String: " + someString);
+        System.out.println("MD5 Digest : " + md5Hash);
     }
 }
 
 #rsa 
 
 
-
 import java.math.BigInteger;
-import java.util.*;
+import java.util.Scanner;
 
-public class RSA {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
+class RSA {
+   RSA() {
+   }
 
-        // 1. Input primes
-        System.out.print("Enter prime p: ");
-        BigInteger p = sc.nextBigInteger();
-        System.out.print("Enter prime q: ");
-        BigInteger q = sc.nextBigInteger();
+   public static void main(String[] var0) {
+      BigInteger var3 = BigInteger.ZERO;
+      BigInteger var4 = BigInteger.ZERO;
+      Scanner var7 = new Scanner(System.in);
+      System.out.println("Enter A's Prime number: ");
+      BigInteger var1 = var7.nextBigInteger();
+      System.out.println("Enter B's Prime number: ");
+      BigInteger var2 = var7.nextBigInteger();
+      BigInteger var5 = var1.multiply(var2);
+      BigInteger var6 = var1.subtract(BigInteger.ONE).multiply(var2.subtract(BigInteger.ONE));
 
-        BigInteger n = p.multiply(q);
-        BigInteger phi = (p.subtract(BigInteger.ONE)).multiply(q.subtract(BigInteger.ONE));
+      while(true) {
+         System.out.println("Enter public key (E): ");
+         var3 = var7.nextBigInteger();
+         if (var6.gcd(var3).equals(BigInteger.ONE)) {
+            var4 = var3.modInverse(var6);
+            var7.nextLine();
+            System.out.println("Enter Plain Text: ");
+            String var8 = var7.nextLine();
+            StringBuilder var9 = new StringBuilder();
+            StringBuilder var10 = new StringBuilder();
 
-        // 2. Input public key e
-        BigInteger e;
-        while (true) {
-            System.out.print("Enter e (1<e<phi, coprime with phi): ");
-            e = sc.nextBigInteger();
-            if (phi.gcd(e).equals(BigInteger.ONE)) break;
-            System.out.println("Invalid e, try again.");
-        }
+            for(int var11 = 0; var11 < var8.length(); ++var11) {
+               BigInteger var12 = BigInteger.valueOf((long)var8.charAt(var11));
+               BigInteger var13 = var12.modPow(var3, var5);
+               var9.append(var13).append(" ");
+               BigInteger var14 = var13.modPow(var4, var5);
+               var10.append((char)var14.intValue());
+            }
 
-        // 3. Compute private key d
-        BigInteger d = e.modInverse(phi);
+            System.out.println("Encrypted text (numbers): " + String.valueOf(var9));
+            System.out.println("Decrypted text: " + String.valueOf(var10));
+            return;
+         }
 
-        System.out.println("\nPublic Key (n,e): (" + n + "," + e + ")");
-        System.out.println("Private Key d: " + d);
-
-        // 4. Plaintext input
-        sc.nextLine(); // consume newline
-        System.out.print("\nEnter plaintext: ");
-        String text = sc.nextLine();
-
-        // 5. Encryption
-        List<BigInteger> encrypted = new ArrayList<>();
-        for (char ch : text.toCharArray())
-            encrypted.add(BigInteger.valueOf((int) ch).modPow(e, n));
-
-        // 6. Decryption
-        StringBuilder decrypted = new StringBuilder();
-        for (BigInteger c : encrypted)
-            decrypted.append((char) c.modPow(d, n).intValue());
-
-        // 7. Output
-        System.out.println("\nEncrypted numbers: " + encrypted);
-        System.out.println("Decrypted text: " + decrypted);
-
-        sc.close();
-    }
+         System.out.println("E must be coprime with phi. Try again.");
+      }
+   }
 }
+
+ 
+
 
 #monoalpha
 
 
-import java.util.Scanner;
+import java.util.*;
 
-public class MonoalphabeticCipher {
-
-    // Encode method
-    String encode(String text, String key) {
-        String res = "";
-        for (char c : text.toCharArray())
-            res += key.charAt(c - 'A');
-        return res;
+class MonoalphabeticCipher {
+    public String encode(String ptxt, String key) {
+        String ciphertext = "";
+        for (int i = 0; i < ptxt.length(); i++) {
+            int index = (int) ptxt.charAt(i) - 65;
+            char ctxt = key.charAt(index);
+            ciphertext += ctxt;
+        }
+        return ciphertext;
     }
 
-    // Decode method
-    String decode(String text, String key) {
-        String res = "";
-        for (char c : text.toCharArray())
-            res += (char) (key.indexOf(c) + 'A');
-        return res;
+    public String decode(String ctxt, String key) {
+        String plaintext = "";
+        for (int i = 0; i < ctxt.length(); i++) {
+            char ct = ctxt.charAt(i);
+            int index = key.indexOf(ct);
+            char pt = (char) (index + 65);
+            plaintext += pt;
+        }
+        return plaintext;
     }
+}
 
-    // Main method
+public class Monoalphabetic {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         String key = "QWERTYUIOPASDFGHJKLZXCVBNM";
 
-        System.out.print("Enter Plaintext: ");
-        String pt = sc.next().toUpperCase();
+        System.out.print("Enter the plain text: ");
+        String ptxt = sc.next();
 
-        MonoalphabeticCipher mc = new MonoalphabeticCipher();
-        String ct = mc.encode(pt, key);
-        System.out.println("CipherText: " + ct);
+        MonoalphabeticCipher mono = new MonoalphabeticCipher();
+        String ctxt = mono.encode(ptxt.toUpperCase(), key);
+        System.out.println(ctxt);
 
-        System.out.println("PlainText: " + mc.decode(ct, key));
+        String plaintxt = mono.decode(ctxt, key);
+        System.out.println(plaintxt);
     }
 }
+
 railfence
 
 import java.util.*;
 
-public class RailfenceCipher {
-
-    void encode(String pt, int key) {
-        pt = pt.toUpperCase();  // ✅ ensure uppercase
-        char[][] rail = new char[key][pt.length()];
-        for (char[] r : rail) Arrays.fill(r, '_');
-
-        boolean down = false;
+class Rail {
+    public void encode(String pt, int key) {
+        char[][] mat = new char[key][pt.length()];
         int row = 0;
+        boolean down = true;
+
+        // Initialize with '_'
+        for (int i = 0; i < key; i++) {
+            Arrays.fill(mat[i], '_');
+        }
 
         // Fill matrix in zigzag
         for (int col = 0; col < pt.length(); col++) {
-            rail[row][col] = pt.charAt(col);
-            if (row == 0 || row == key - 1) down = !down;
-            row += down ? 1 : -1;
+            mat[row][col] = pt.charAt(col);
+            if (down) {
+                row++;
+                if (row == key) {
+                    row = key - 2;
+                    down = false;
+                }
+            } else {
+                row--;
+                if (row < 0) {
+                    row = 1;
+                    down = true;
+                }
+            }
         }
 
-        // ✅ Print matrix neatly
+        // Print the matrix
         System.out.println("\nRail Fence Matrix:");
-        for (char[] r : rail) {
-            for (char c : r) System.out.print(c + " ");
+        for (int i = 0; i < key; i++) {
+            for (int j = 0; j < pt.length(); j++) {
+                System.out.print(mat[i][j] + " ");
+            }
             System.out.println();
         }
 
-        // Read ciphertext row-wise
-        StringBuilder ct = new StringBuilder();
-        for (char[] r : rail)
-            for (char c : r)
-                if (c != '_') ct.append(c);
+        // Read row-wise for ciphertext
+        StringBuilder ctext = new StringBuilder();
+        for (int i = 0; i < key; i++) {
+            for (int j = 0; j < pt.length(); j++) {
+                if (mat[i][j] != '_') {
+                    ctext.append(mat[i][j]);
+                }
+            }
+        }
 
-        System.out.println("\nCipher Text: " + ct);
+        System.out.println("\nCipher Text: " + ctext.toString());
     }
+}
 
+public class RailFenceCipher {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        RailfenceCipher rf = new RailfenceCipher();
 
         System.out.print("Enter the plain text: ");
-        String pt = sc.nextLine().replaceAll(" ", "");
+        String ptxt = sc.nextLine();
+        ptxt = ptxt.replaceAll(" ", ""); // remove spaces
 
         System.out.print("Enter the key (number of rails): ");
         int key = sc.nextInt();
 
-        rf.encode(pt, key);
+        Rail r = new Rail();
+        r.encode(ptxt.toUpperCase(), key);
     }
 }
+
 
 #ceaSEcipher
 
 
-import java.util.Scanner;
+import java.util.*;
 
-public class CeaserCipher {
-
-    // Encode method
-    String encode(String text, int key) {
-        String result = "";
-        for (char c : text.toCharArray())
-            result += (char) ((c - 'A' + key) % 26 + 'A');
-        return result;
+class CeaserCipher {
+    public String encode(String ptext, int key) {
+        String ciphertext = "";
+        for (int i = 0; i < ptext.length(); i++) {
+            int index = (int) ptext.charAt(i);
+            char ch = (char) ((index + key - 65) % 26 + 65);
+            ciphertext += ch;
+        }
+        return ciphertext;
     }
 
-    // Decode method
-    String decode(String text, int key) {
-        String result = "";
-        for (char c : text.toCharArray())
-            result += (char) ((c - 'A' - key + 26) % 26 + 'A');
-        return result;
+    public String decode(String ctext, int key) {
+        String plaintext = "";
+        for (int i = 0; i < ctext.length(); i++) {
+            int index = (int) ctext.charAt(i);
+            char ch = (char) ((index - key - 65 + 26) % 26 + 65);
+            plaintext += ch;
+        }
+        return plaintext;
     }
+}
 
-    // Main method
+public class Ceaser {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        CeaserCipher cc = new CeaserCipher();
-
-        System.out.print("Enter Plaintext: ");
-        String pt = sc.next().toUpperCase();
-
-        System.out.print("Enter Key: ");
+        System.out.print("Enter the plain text: ");
+        String ptxt = sc.next();
+        System.out.print("Enter the key: ");
         int key = sc.nextInt();
 
-        String ct = cc.encode(pt, key);
-        System.out.println("CipherText: " + ct);
+        CeaserCipher cc = new CeaserCipher();
+        String ctext = cc.encode(ptxt.toUpperCase(), key);
+        System.out.println(ctext);
 
-        System.out.println("PlainText: " + cc.decode(ct, key));
+        String plaintext = cc.decode(ctext, key);
+        System.out.println(plaintext);
     }
 }
 
@@ -284,130 +337,212 @@ public class SymmetricSwitch {
 }
 #aes
 
-import javax.crypto.*;
-import java.security.*;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 
 public class AES {
+    static Cipher cipher;
 
-    public static void main(String[] args) throws Exception {
+    // Encrypt function
+    public static String encrypt(String ptext, SecretKey secretKey)
+            throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        byte[] plaintextBytes = ptext.getBytes();
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        byte[] encryptedBytes = cipher.doFinal(plaintextBytes);
+        Base64.Encoder encoder = Base64.getEncoder();
+        return encoder.encodeToString(encryptedBytes);
+    }
 
-        // Generate AES key (128-bit)
-        SecretKey key = KeyGenerator.getInstance("AES").generateKey();
+    // Decrypt function
+    public static String decrypt(String encrypted, SecretKey secretKey)
+            throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        Base64.Decoder decoder = Base64.getDecoder();
+        byte[] encryptedBytes = decoder.decode(encrypted);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
+        return new String(decryptedBytes);
+    }
 
-        Cipher cipher = Cipher.getInstance("AES");
-        String message = "This message is important";
+    public static void main(String[] args) throws NoSuchAlgorithmException,
+            NoSuchPaddingException, InvalidKeyException,
+            IllegalBlockSizeException, BadPaddingException {
 
-        // Encryption
-        cipher.init(Cipher.ENCRYPT_MODE, key);
-        byte[] encrypted = cipher.doFinal(message.getBytes());
-        String encText = Base64.getEncoder().encodeToString(encrypted);
+        // Generate AES key
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        keyGenerator.init(128); // AES-128
+        SecretKey secretKey = keyGenerator.generateKey();
 
-        // Decryption
-        cipher.init(Cipher.DECRYPT_MODE, key);
-        byte[] decrypted = cipher.doFinal(encrypted);
-        String decText = new String(decrypted);
+        cipher = Cipher.getInstance("AES");
 
-        // Output
-        System.out.println("Before Encryption: " + message);
-        System.out.println("After Encryption: " + encText);
-        System.out.println("Decrypted message: " + decText);
+        String plaintext = "This message is important";
+
+        System.out.println("Before Encryption: " + plaintext);
+
+        // Encrypt
+        String encrypted = encrypt(plaintext, secretKey);
+        System.out.println("After Encryption: " + encrypted);
+
+        // Decrypt
+        String decrypted = decrypt(encrypted, secretKey);
+        System.out.println("Decrypted message: " + decrypted);
     }
 }
+
 
 #vernam
 
-import java.util.Scanner;
+import java.util.*;
 
-public class VernamCipher {
-
-    String encode(String pt, String key) {
-        String res = "";
-        for (int i = 0; i < pt.length(); i++)
-            res += (char) (((pt.charAt(i) - 'A') + (key.charAt(i) - 'A')) % 26 + 'A');
-        return res;
+class VernamCipher {
+    public String encode(String ptxt, String key) {
+        String ctext = "";
+        if (ptxt.length() == key.length()) {
+            for (int i = 0; i < ptxt.length(); i++) {
+                int p_index = ptxt.charAt(i) - 65;
+                int k_index = key.charAt(i) - 65;
+                int c_index = p_index + k_index;
+                if (c_index >= 26) {
+                    c_index = c_index - 26;
+                }
+                char ctxt = (char) (c_index + 65);
+                ctext += ctxt;
+            }
+        }
+        return ctext;
     }
 
-    String decode(String ct, String key) {
-        String res = "";
-        for (int i = 0; i < ct.length(); i++)
-            res += (char) (((ct.charAt(i) - 'A') - (key.charAt(i) - 'A') + 26) % 26 + 'A');
-        return res;
-    }
+    public String decode(String ctxt, String key) {
+        String ptext = "";
+        if (ctxt.length() == key.length()) {
+            for (int i = 0; i < ctxt.length(); i++) {
+                int c_index = ctxt.charAt(i) - 65;
+                int k_index = key.charAt(i) - 65;
+                int p_index = c_index - k_index;
+                if (p_index < 0) {
+                    p_index = p_index + 26;
+                }
+                char ptxt = (char) (p_index + 65);
+                ptext += ptxt;
+            }
+        }
 
+
+
+
+        return ptext;
+    }
+}
+
+public class Vernam {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        VernamCipher vc = new VernamCipher();
 
-        System.out.print("Enter Plaintext: ");
-        String pt = sc.next().toUpperCase();
+        System.out.print("Enter the plain text: ");
+        String ptxt = sc.next();
 
-        System.out.print("Enter Key: ");
-        String key = sc.next().toUpperCase();
+        System.out.print("Enter the key: ");
+        String key = sc.next();
 
-        if (pt.length() != key.length()) {
-            System.out.println("Key and Plaintext must have same length!");
+        // Make sure both are uppercase and same length
+        ptxt = ptxt.toUpperCase();
+        key = key.toUpperCase();
+
+        if (ptxt.length() != key.length()) {
+            System.out.println("Error: Key length must be equal to plaintext length!");
             return;
         }
 
-        String ct = vc.encode(pt, key);
-        System.out.println("CipherText: " + ct);
-        System.out.println("PlainText: " + vc.decode(ct, key));
+        VernamCipher vc = new VernamCipher();
+        String ctext = vc.encode(ptxt, key);
+        System.out.println("Cipher Text: " + ctext);
+
+        String ptext = vc.decode(ctext, key);
+        System.out.println("Decrypted Text: " + ptext);
     }
 }
+
 
 #simple columnar
 
 import java.util.*;
 
-import java.util.Scanner;
-
-public class SimplecolumnarCipher {
-
-    void encode(String pt, int row, int col) {
+class Columnar {
+    public void encode(String ptext, int row, int col) {
         Scanner sc = new Scanner(System.in);
         char[][] mat = new char[row][col];
         int index = 0;
+        boolean isvalue = true;
+        String ctext = "";
 
-        // Fill matrix row-wise with padding '_'
-        for (int i = 0; i < row; i++)
-            for (int j = 0; j < col; j++)
-                mat[i][j] = index < pt.length() ? pt.charAt(index++) : '_';
-
-        // Print matrix
-        System.out.println("\nMatrix:");
-        for (char[] r : mat) {
-            for (char c : r) System.out.print(c + " ");
-            System.out.println();
-        }
-
-        // Take key input
-        System.out.print("\nEnter keys (permutation of 0-" + (col - 1) + "): ");
-        String keys = sc.next();
-        if (keys.length() != col) {
-            System.out.println("Key length must match number of columns!");
-            return;
-        }
-
-        // Build cipher text
-        StringBuilder ctext = new StringBuilder();
-        for (char k : keys.toCharArray()) { // ✅ convert String to char array
-            int key = k - '0';
-            if (key < 0 || key >= col) {
-                System.out.println("Keys out of range!");
-                return;
+        if (ptext.length() <= row * col) {
+            // Fill matrix row-wise
+            for (int i = 0; i < row; i++) {
+                for (int j = 0; j < col; j++) {
+                    if (index < ptext.length()) {
+                        mat[i][j] = ptext.charAt(index);
+                        index++;
+                    } else {
+                        mat[i][j] = '_'; // padding
+                    }
+                }
             }
-            for (int i = 0; i < row; i++) ctext.append(mat[i][key]);
+
+            // Print matrix
+            System.out.println("\nMatrix:");
+            for (int i = 0; i < row; i++) {
+                for (int j = 0; j < col; j++) {
+                    System.out.print(mat[i][j] + " ");
+                }
+                System.out.println();
+            }
+
+            // Take key input
+            System.out.print("\nEnter keys (permutation of 0-" + (col - 1) + "): ");
+            String keys = sc.next();
+
+            if (keys.length() == col) {
+                for (int j = 0; j < keys.length(); j++) {
+                    int key = Character.getNumericValue(keys.charAt(j));
+                    if (key >= col) {
+                        isvalue = false;
+                        break;
+                    }
+                }
+
+                if (isvalue) {
+                    for (int z = 0; z < keys.length(); z++) {
+                        int key = Character.getNumericValue(keys.charAt(z));
+                        for (int i = 0; i < row; i++) {
+                            ctext += mat[i][key];
+                        }
+                    }
+                } else {
+                    System.out.println("Keys out of range!");
+                }
+            } else {
+                System.out.println("Key length must match number of columns!");
+            }
+        } else {
+            System.out.println("Plain text does not fit in matrix!");
         }
 
         System.out.println("\nCipher Text: " + ctext);
     }
+}
 
+public class SimpleColumnar {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-
         System.out.print("Enter the plain text: ");
-        String pt = sc.nextLine().replaceAll(" ", "").toLowerCase();
+        String ptext = sc.nextLine();
+        ptext = ptext.replaceAll(" ", "");
 
         System.out.print("Enter the no. of rows: ");
         int row = sc.nextInt();
@@ -415,38 +550,61 @@ public class SimplecolumnarCipher {
         System.out.print("Enter the no. of columns: ");
         int col = sc.nextInt();
 
-        new SimplecolumnarCipher().encode(pt, row, col);
+        Columnar c = new Columnar();
+        c.encode(ptext.toLowerCase(), row, col);
     }
 }
+ 
+
+
 
 
 #deffihelleman
 
-import java.math.BigInteger;
-import java.util.Scanner;
+import java.util.*;
+import java.math.*;
 
-public class DiffieHellman {
+class DiffieHellman {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
-        System.out.print("Enter prime q: ");
+        // Input prime number q
+        System.out.print("Enter prime number q: ");
         BigInteger q = sc.nextBigInteger();
+
+        // Input primitive root a
         System.out.print("Enter primitive root a: ");
         BigInteger a = sc.nextBigInteger();
 
-        System.out.print("Enter private key XA: ");
+        // Input private key of A (XA)
+        System.out.print("Enter private key of A (XA): ");
         BigInteger XA = sc.nextBigInteger();
+
+        // Compute public key of A (YA)
         BigInteger YA = a.modPow(XA, q);
-        System.out.println("Public key YA: " + YA);
+        System.out.println("Public key of A (YA): " + YA);
 
-        System.out.print("Enter private key XB: ");
+        // Input private key of B (XB)
+        System.out.print("Enter private key of B (XB): ");
         BigInteger XB = sc.nextBigInteger();
-        BigInteger YB = a.modPow(XB, q);
-        System.out.println("Public key YB: " + YB);
 
-        // Shared secret
-        BigInteger key = YB.modPow(XA, q); // same as YA.modPow(XB,q)
-        System.out.println("Shared Secret Key: " + key);
+        // Compute public key of B (YB)
+        BigInteger YB = a.modPow(XB, q);
+        System.out.println("Public key of B (YB): " + YB);
+// Compute secret keys
+        BigInteger keyA = YB.modPow(XA, q);
+        BigInteger keyB = YA.modPow(XB, q);
+
+        System.out.println("Secret key of A: " + keyA);
+        System.out.println("Secret key of B: " + keyB);
+
+        // Verify both keys
+        if (keyA.equals(keyB)) {
+            System.out.println("Exchange Successful! Shared Secret = " + keyA);
+        } else {
+            System.out.println("Exchange Failed.");
+        }
     }
 }
+ 
 
