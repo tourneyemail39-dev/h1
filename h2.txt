@@ -1,0 +1,26 @@
+practical 2
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Datatypes{
+
+    struct Employe{
+        uint id;
+        string name;
+        string designation;
+        uint salary;
+    }
+
+    mapping(uint=>Employe)public employeDetails;
+    Employe[]public emp;
+
+    function addEmploye(
+        uint _id,
+        string memory _name,
+        string memory _designation,
+        uint _salary
+    )public {
+        emp.push(Employe(_id,_name,_designation,_salary));
+        employeDetails[_id]=Employe(_id,_name,_designation,_salary);
+    }
+}
