@@ -1,0 +1,58 @@
+Practical 7
+
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity >=0.7.0 <0.9.0;
+
+// Custom errors
+error InsufficientAmount(address sender);
+error InsufficientDonationAmount(address sender, uint amt);
+
+contract Donation {
+
+    // Event
+    event DonationMoreThan5Ether(address donor, uint amt);
+
+    address owner;
+
+    // Constructor
+    constructor() {
+        owner = msg.sender;
+    }
+
+    // Modifier
+    modifier only_owner(){
+        require(msg.sender == owner,"You're not the owner");
+        _;
+    }
+
+    // Donate function
+    function donate() public payable {
+
+        if(msg.value == 0){
+            revert InsufficientDonationAmount(msg.sender,msg.value);
+        }
+
+        if(msg.sender.balance <= 85e18){
+            revert InsufficientAmount(msg.sender);
+        }
+
+        if(msg.value > 5e18){
+            emit DonationMoreThan5Ether(msg.sender,msg.value);
+        }
+    }
+
+    // Withdraw function
+    function withdraw() public payable only_owner returns(bool){
+
+        uint curr_bal = address(this).balance;
+
+        (bool success,) = owner.call{value: curr_bal}("");
+
+        return success;
+    }
+
+    // View balance
+    function viewMyBalance() public view returns(uint){
+        return msg.sender.balance;
+    }
+}
