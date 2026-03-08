@@ -1,0 +1,22 @@
+Practical 3
+
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Practical3{
+    uint rollno;
+    string name;
+
+    function studentdetails(uint _rollno,string memory _name)public {
+        rollno=_rollno;
+        name=_name;
+    }
+
+    function displayStudent()public view returns(uint,string memory){
+        return (rollno,name);
+    }
+
+    function addition(uint a,uint b)public pure returns(uint){
+        return a+b;
+    }
+}
