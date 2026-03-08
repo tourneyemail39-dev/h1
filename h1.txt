@@ -1,32 +1,289 @@
-pract 9
+Practical 1
 
-<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
-<channel>
-<title>Cloud Computing News</title>
+import hashlib
+import time
 
-<item>
-<title>Cloud Basics</title>
-<link>https://www.geeksforgeeks.org/cloud-computing/cloud-computing-tutorial/</link>
-<description>Introduction to cloud computing</description>
-</item>
+class Block:
+    def __init__(self,index,timestamp,data,prior_hash=0):
+        self.index = index 
+        self.timestamp = timestamp
+        self.data = data
+        self.prior_hash = prior_hash
+        self.hash = self.create_hash()
 
-<item>
-<title>Cloud Service Models</title>
-<link>https://www.geeksforgeeks.org/cloud-computing/cloud-based-services/</link>
-<description>IaaS, PaaS and SaaS explained</description>
-</item>
+    def create_hash(self):
+        blockstr = f"{self.index}{self.timestamp}{self.data}{self.prior_hash}".encode()
+        return hashlib.sha256(blockstr).hexdigest()
 
-</channel>
-</rss>
+class Blockchain:
+    def __init__(self):
+        self.chain=[self.create_genesis()]
 
-commands
-dotnet new mvc --name myApp121
-cd myApp121
-dotnet run
-curl http://localhost:5151
-dotnet publish -o pub
-cd pub
-zip -r site.zip .
-az webapp deploy --src-path site.zip --resource-group practice --name myApp121
+    def create_genesis(self):
+        return Block(0,str(time.localtime()),'',0)
 
+    def get_latest_block(self):
+        return self.chain[-1]
+    
+    def add_new_block(self,newblock):
+        newblock.prior_hash = self.get_latest_block().hash
+        newblock.hash = newblock.create_hash()
+        self.chain.append(newblock)
+
+    def display_blockchain(self):
+        for i in range(len(self.chain)):
+            print("Block no:",i,"Data:",self.chain[i].data)
+            print("Block no:",i,"Hash:",self.chain[i].hash)
+            print("Block no:",i,"Prior Hash:",self.chain[i].prior_hash,"\n")
+
+    def checkBC(self):
+        for i in range(1,len(self.chain)):
+            current = self.chain[i]
+            prev = self.chain[i-1]
+            if current.hash!=current.create_hash():
+                return False
+            if current.prior_hash!=prev.hash:
+                return False
+        return True
+
+MyBlockchain = Blockchain()
+MyBlockchain.add_new_block(Block(1,str(time.localtime()),'1000'))
+MyBlockchain.add_new_block(Block(2,str(time.localtime()),'2000'))
+MyBlockchain.add_new_block(Block(3,str(time.localtime()),'3000'))
+MyBlockchain.display_blockchain()
+
+
+print("is valid ?",str(MyBlockchain.checkBC()))
+print("Changing Amount of block 1 from 1000 to 5000")
+MyBlockchain.chain[1].data='5000'
+print("is valid ?",str(MyBlockchain.checkBC()))
+
+print("Changing Hash of block 1 by creating new hash")
+MyBlockchain.chain[1].hash = MyBlockchain.chain[1].create_hash()
+print("is valid ?",str(MyBlockchain.checkBC()))
+MyBlockchain.display_blockchain()
+
+Practical 2
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Datatypes{
+
+    struct Employe{
+        uint id;
+        string name;
+        string designation;
+        uint salary;
+    }
+
+    mapping(uint=>Employe)public employeDetails;
+    Employe[]public emp;
+
+    function addEmploye(
+        uint _id,
+        string memory _name,
+        string memory _designation,
+        uint _salary
+    )public {
+        emp.push(Employe(_id,_name,_designation,_salary));
+        employeDetails[_id]=Employe(_id,_name,_designation,_salary);
+    }
+}
+Practical 3
+
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Practical3{
+    uint rollno;
+    string name;
+
+    function studentdetails(uint _rollno,string memory _name)public {
+        rollno=_rollno;
+        name=_name;
+    }
+
+    function displayStudent()public view returns(uint,string memory){
+        return (rollno,name);
+    }
+
+    function addition(uint a,uint b)public pure returns(uint){
+        return a+b;
+    }
+}
+
+Practical 4
+
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Donation {
+
+    address public owner;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    // Function to donate ETH
+    function donate() public payable {}
+
+    // Owner withdraws all ETH
+    function withdraw() public returns (bool) {
+
+        require(msg.sender == owner, "Only owner can withdraw");
+
+        uint256 ctr_bal = address(this).balance;
+
+        (bool success,) = owner.call{value: ctr_bal}("");
+
+        return success;
+    }
+
+    // View balance of caller
+    function viewMyBalance() public view returns(uint256){
+        uint256 myBalance = msg.sender.balance;
+        return myBalance;
+    }
+}
+
+Practical 56
+
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity >=0.7.0 <0.9.0;
+
+// Custom Errors
+error InsufficientDonationAmount(address sender, uint amt);
+error InsufficientAmount();
+
+contract Donation {
+
+    address owner;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    // Modifier
+    modifier only_owner(){
+        require(msg.sender == owner, "You're not the owner");
+        _;
+    }
+
+    // Donate Function
+    function donate() public payable {
+
+        if(msg.value == 0){
+            revert InsufficientDonationAmount(msg.sender, msg.value);
+        }
+
+        if(msg.sender.balance <= 85e18){
+            revert InsufficientAmount();
+        }
+    }
+
+    // Withdraw Function
+    function withdraw() public payable only_owner returns(bool){
+
+        uint ctr_bal = address(this).balance;
+
+        (bool success,) = owner.call{value: ctr_bal}("");
+
+        return success;
+    }
+
+    // View Balance
+    function viewMyBalance() public view returns(uint){
+        return msg.sender.balance;
+    }
+}
+
+Practical 7
+
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity >=0.7.0 <0.9.0;
+
+// Custom errors
+error InsufficientAmount(address sender);
+error InsufficientDonationAmount(address sender, uint amt);
+
+contract Donation {
+
+    // Event
+    event DonationMoreThan5Ether(address donor, uint amt);
+
+    address owner;
+
+    // Constructor
+    constructor() {
+        owner = msg.sender;
+    }
+
+    // Modifier
+    modifier only_owner(){
+        require(msg.sender == owner,"You're not the owner");
+        _;
+    }
+
+    // Donate function
+    function donate() public payable {
+
+        if(msg.value == 0){
+            revert InsufficientDonationAmount(msg.sender,msg.value);
+        }
+
+        if(msg.sender.balance <= 85e18){
+            revert InsufficientAmount(msg.sender);
+        }
+
+        if(msg.value > 5e18){
+            emit DonationMoreThan5Ether(msg.sender,msg.value);
+        }
+    }
+
+    // Withdraw function
+    function withdraw() public payable only_owner returns(bool){
+
+        uint curr_bal = address(this).balance;
+
+        (bool success,) = owner.call{value: curr_bal}("");
+
+        return success;
+    }
+
+    // View balance
+    function viewMyBalance() public view returns(uint){
+        return msg.sender.balance;
+    }
+}
+
+Practical 8
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.18;
+
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract MyNft is ERC721URIStorage, Ownable {
+
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
+
+    constructor() ERC721("Python", "PY") Ownable(msg.sender) {}
+
+    function mintNFT(address recipient, string memory tokenURI)
+        public
+        onlyOwner
+        returns(uint256)
+    {
+        _tokenIds.increment();
+        uint256 newItemId = _tokenIds.current();
+
+        _mint(recipient, newItemId);
+        _setTokenURI(newItemId, tokenURI);
+
+        return newItemId;
+    }
+}
