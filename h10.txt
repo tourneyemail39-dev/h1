@@ -1,36 +1,48 @@
-Gensis.Json
+A)
+import tensorflow as tf
+import datetime
+import numpy as np
 
-{
-  "config": {
-    "chainId": 987,
-    "homesteadBlock": 0,
-    "eip150Block": 0,
-    "eip155Block": 0,
-    "eip158Block": 0,
-    "TerminalTotalDifficulty": 0,
-    "TerminalTotalDifficultyPasses": true
-  },
-  "difficulty": "0x400",
-  "gaslimit": "0x8000000",
-  "alloc": {}
-}
+log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
-Pract 11
-geth --datadir node1 init Genesis.json
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir)
 
-geth account new --datadir node1
+model = tf.keras.Sequential([
+    tf.keras.Input(shape=(1,)),
+    tf.keras.layers.Dense(1)
+])
 
-password
-re
+model.compile(optimizer="sgd", loss="mean_squared_error")
 
-geth --datadir node1 console 
+xs = np.array([-1.0,0.0,1.0,2.0,3.0,4.0])
+ys = np.array([-3.0,-1.0,1.0,3.0,5.0,7.0])
 
-eth.accounts
+model.fit(xs, ys, epochs=10, callbacks=[tensorboard_callback])
+B)
+import tensorflow as tf
+import numpy as np
 
-eth.getBalance("account addr")
+features = np.array([[1,2],[3,4],[5,6],[7,8]])
+labels = np.array([0,1,0,1])
 
-miner.start()
+dataset = tf.data.Dataset.from_tensor_slices((features,labels))
 
-miner.stop()
+dataset = dataset.shuffle(buffer_size=4).batch(2).repeat()
 
-persnol.unlockaccount("acc address")
+for element in dataset.take(3):
+    print("Features ",element[0]," labels ",element[1])
+C)
+import tensorflow as tf
+
+model = tf.keras.Sequential([
+    tf.keras.Input(shape=(1,)),
+    tf.keras.layers.Dense(1)
+])
+
+model.compile(optimizer="sgd", loss="mean_squared_error")
+
+converter = tf.lite.TFLiteConverter.from_keras_model(model)
+tflite_model = converter.convert()
+
+with open("simple_model.tflite", "wb") as f:
+    f.write(tflite_model)
