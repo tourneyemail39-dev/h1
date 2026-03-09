@@ -1,58 +1,44 @@
-Practical 7
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
-// SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.7.0 <0.9.0;
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score, f1_score, confusion_matrix, ConfusionMatrixDisplay
 
-// Custom errors
-error InsufficientAmount(address sender);
-error InsufficientDonationAmount(address sender, uint amt);
+# 1 Load dataset
+df = pd.read_csv("C:\\Users\\abhis\\OneDrive\\Desktop\\MyNetwork\\loan_data.csv")
 
-contract Donation {
+# 2 Visualization
+sns.countplot(data=df, x='purpose', hue='not.fully.paid')
+plt.xticks(rotation=45)
+plt.show()
 
-    // Event
-    event DonationMoreThan5Ether(address donor, uint amt);
+# 3 Convert text to numeric
+df = pd.get_dummies(df, columns=['purpose'], drop_first=True)
 
-    address owner;
+# 4 Define features and target
+X = df.drop('not.fully.paid', axis=1)
+y = df['not.fully.paid']
 
-    // Constructor
-    constructor() {
-        owner = msg.sender;
-    }
+# 5 Split dataset
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
-    // Modifier
-    modifier only_owner(){
-        require(msg.sender == owner,"You're not the owner");
-        _;
-    }
+# 6 Train model
+model = GaussianNB()
+model.fit(X_train, y_train)
 
-    // Donate function
-    function donate() public payable {
+# 7 Prediction
+y_pred = model.predict(X_test)
 
-        if(msg.value == 0){
-            revert InsufficientDonationAmount(msg.sender,msg.value);
-        }
+# 8 Accuracy
+print("Accuracy:", accuracy_score(y_test, y_pred))
 
-        if(msg.sender.balance <= 85e18){
-            revert InsufficientAmount(msg.sender);
-        }
+# 9 F1 Score
+print("F1 Score:", f1_score(y_test, y_pred, average="weighted"))
 
-        if(msg.value > 5e18){
-            emit DonationMoreThan5Ether(msg.sender,msg.value);
-        }
-    }
-
-    // Withdraw function
-    function withdraw() public payable only_owner returns(bool){
-
-        uint curr_bal = address(this).balance;
-
-        (bool success,) = owner.call{value: curr_bal}("");
-
-        return success;
-    }
-
-    // View balance
-    function viewMyBalance() public view returns(uint){
-        return msg.sender.balance;
-    }
-}
+# 10 Confusion Matrix
+cm = confusion_matrix(y_test, y_pred)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["Fully Paid","Not Fully Paid"])
+disp.plot()
+plt.show()
