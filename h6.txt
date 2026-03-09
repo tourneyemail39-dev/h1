@@ -1,163 +1,24 @@
-import 'package:flutter/material.dart';
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
-class StudentListPage extends StatelessWidget {
-  final List<Map<String, String>> students;
+# Load dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
 
-  const StudentListPage({super.key, required this.students});
+# Split dataset
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Student List")),
-      body: ListView.builder(
-        itemCount: students.length,
-        itemBuilder: (context, index) {
-          final student = students[index];
-          return Card(
-            margin: const EdgeInsets.all(10),
-            child: ListTile(
-              leading: const Icon(Icons.person, color: Colors.black54),
-              title: Text(student["name"] ?? ""),
-              subtitle: Text(
-                "Class: ${student["class"]}, Percentage: ${student["percentage"]}%",
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
+# Create AdaBoost model
+model = AdaBoostClassifier(n_estimators=90, learning_rate=1)
 
+# Train model
+model.fit(X_train, y_train)
 
-class StudentPage extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => _FormStudentState();
-}
+# Predict
+y_pred = model.predict(X_test)
 
-class _FormStudentState extends State<StudentPage> {
-  final _formKey = GlobalKey<FormState>();
-
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _classController = TextEditingController();
-  final TextEditingController _percentageController = TextEditingController();
-
-  List<Map<String, String>> students = [];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Center(
-          child: Text(
-            "STUDENT FORM",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-      ),
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              // Name
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: "Name",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  prefixIcon: const Icon(Icons.person),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Name is required";
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 10),
-
-              // Class
-              TextFormField(
-                controller: _classController,
-                decoration: InputDecoration(
-                  labelText: "Class",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  prefixIcon: const Icon(Icons.school_rounded),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Class is required";
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 10),
-
-              // Percentage
-              TextFormField(
-                controller: _percentageController,
-                decoration: InputDecoration(
-                  labelText: "Percentage",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  prefixIcon: const Icon(Icons.percent_rounded),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Percentage is required";
-                  }
-                  final num? percent = num.tryParse(value);
-                  if (percent == null || percent < 1 || percent > 100) {
-                    return "Enter a valid percentage (1–100)";
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-
-              // Button
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    setState(() {
-                      students.add({
-                        "name": _nameController.text.trim(),
-                        "class": _classController.text.trim(),
-                        "percentage": _percentageController.text.trim(),
-                      });
-                    });
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            StudentListPage(students: students),
-                      ),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(elevation: 2),
-                child: const Text(
-                  "Add & View",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
+# Accuracy
+print("AdaBoost Accuracy:", accuracy_score(y_test, y_pred))
