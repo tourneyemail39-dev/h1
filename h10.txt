@@ -1,0 +1,36 @@
+Gensis.Json
+
+{
+  "config": {
+    "chainId": 987,
+    "homesteadBlock": 0,
+    "eip150Block": 0,
+    "eip155Block": 0,
+    "eip158Block": 0,
+    "TerminalTotalDifficulty": 0,
+    "TerminalTotalDifficultyPasses": true
+  },
+  "difficulty": "0x400",
+  "gaslimit": "0x8000000",
+  "alloc": {}
+}
+
+Pract 11
+geth --datadir node1 init Genesis.json
+
+geth account new --datadir node1
+
+password
+re
+
+geth --datadir node1 console 
+
+eth.accounts
+
+eth.getBalance("account addr")
+
+miner.start()
+
+miner.stop()
+
+persnol.unlockaccount("acc address")
