@@ -1,36 +1,21 @@
-Gensis.Json
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori,association_rules
 
-{
-  "config": {
-    "chainId": 987,
-    "homesteadBlock": 0,
-    "eip150Block": 0,
-    "eip155Block": 0,
-    "eip158Block": 0,
-    "TerminalTotalDifficulty": 0,
-    "TerminalTotalDifficultyPasses": true
-  },
-  "difficulty": "0x400",
-  "gaslimit": "0x8000000",
-  "alloc": {}
-}
+dataset = [
+    ["Milk","Bread","Butter"],
+    ["Milk","Bread"],
+    ["Bread","Butter"],
+    ["Milk","Jam"],
+    ["Bread","Jam"],
+    ]
 
-Pract 11
-geth --datadir node1 init Genesis.json
+te = TransactionEncoder()
+te_ary = te.fit_transform(dataset)
 
-geth account new --datadir node1
+df = pd.DataFrame(data=te_ary,columns=te.columns_)
+print(df)
 
-password
-re
-
-geth --datadir node1 console 
-
-eth.accounts
-
-eth.getBalance("account addr")
-
-miner.start()
-
-miner.stop()
-
-persnol.unlockaccount("acc address")
+frequent_items = apriori(df,min_support=0.2,use_colnames=True)
+rules = association_rules(frequent_items,metric="lift",min_threshold=1)
+print(rules[['antecedents','consequents','support','confidence','lift']])
