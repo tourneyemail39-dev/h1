@@ -1,50 +1,21 @@
-Practical 56
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.preprocessing import LabelEncoder
 
-// SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.7.0 <0.9.0;
+df = pd.read_csv("cars_dataset.csv")
 
-// Custom Errors
-error InsufficientDonationAmount(address sender, uint amt);
-error InsufficientAmount();
+# Encode all columns
+le = LabelEncoder()
+for col in df.columns:
+    df[col] = le.fit_transform(df[col])
 
-contract Donation {
+X = df.drop('car', axis=1)
+y = df['car']
 
-    address owner;
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-    constructor() {
-        owner = msg.sender;
-    }
+model = SVC()
+model.fit(X_train, y_train)
 
-    // Modifier
-    modifier only_owner(){
-        require(msg.sender == owner, "You're not the owner");
-        _;
-    }
-
-    // Donate Function
-    function donate() public payable {
-
-        if(msg.value == 0){
-            revert InsufficientDonationAmount(msg.sender, msg.value);
-        }
-
-        if(msg.sender.balance <= 85e18){
-            revert InsufficientAmount();
-        }
-    }
-
-    // Withdraw Function
-    function withdraw() public payable only_owner returns(bool){
-
-        uint ctr_bal = address(this).balance;
-
-        (bool success,) = owner.call{value: ctr_bal}("");
-
-        return success;
-    }
-
-    // View Balance
-    function viewMyBalance() public view returns(uint){
-        return msg.sender.balance;
-    }
-}
+print("SVM Model Accuracy:", model.score(X_test, y_test))
