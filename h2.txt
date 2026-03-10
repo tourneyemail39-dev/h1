@@ -1,26 +1,137 @@
-practical 2
-//SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract Datatypes{
-
-    struct Employe{
-        uint id;
-        string name;
-        string designation;
-        uint salary;
-    }
-
-    mapping(uint=>Employe)public employeDetails;
-    Employe[]public emp;
-
-    function addEmploye(
-        uint _id,
-        string memory _name,
-        string memory _designation,
-        uint _salary
-    )public {
-        emp.push(Employe(_id,_name,_designation,_salary));
-        employeDetails[_id]=Employe(_id,_name,_designation,_salary);
-    }
+A)
+graph = {
+    'A': [('B', 1), ('C', 5)],
+    'B': [('D', 3), ('E', 2)],
+    'C': [('F', 1)],
+    'D': [('G', 4)],
+    'E': [('G', 6)],
+    'F': [('G', 2)],
+    'G': []
 }
+
+heuristic = {
+    'A': 7, 'B': 6, 'C': 2, 'D': 4, 'E': 4, 'F': 1, 'G': 0
+}
+
+visited = set()
+path = []
+
+def bestFS(current_node,target_node,cost_so_far=0,limit=float('inf')):
+
+    if current_node == target_node:
+        return path + [current_node], cost_so_far
+    
+    visited.add(current_node)
+    path.append(current_node)
+
+    successors = []
+
+    for (neighbor,edge_cost) in graph[current_node]:
+        estimated_cost = cost_so_far + edge_cost + heuristic[neighbor]
+        successors.append((estimated_cost,neighbor,edge_cost))
+
+    successors.sort()
+
+    for (estimated_cost,neighbor,edge_cost) in successors:
+        if estimated_cost > limit:
+            continue
+
+        result_path,result_cost = bestFS(
+            neighbor,
+            target_node,
+            cost_so_far + edge_cost,
+            min(limit,estimated_cost)
+        )
+
+        if result_path:
+            return result_path,result_cost
+
+    return None,float('inf')
+
+
+path_result , cost = bestFS("A","E")
+
+print("Path found:",path_result)
+print("Path cost:",cost)
+B)
+Graph_nodes = {
+'A': [('B', 6), ('F', 3)],
+'B': [('A', 6), ('C', 3), ('D', 2)],
+'C': [('B', 3), ('D', 1), ('E', 5)],
+'D': [('B', 2), ('C', 1), ('E', 8)],
+'E': [('C', 5), ('D', 8), ('I', 5), ('J', 5)],
+'F': [('A', 3), ('G', 1), ('H', 7)],
+'G': [('F', 1), ('I', 3)],
+'H': [('F', 7), ('I', 2)],
+'I': [('E', 5), ('G', 3), ('H', 2), ('J', 3)],
+'J': []
+}
+
+def heuristic(n):
+    H_dist = {
+        'A': 11,
+        'B': 6,
+        'C': 5,
+        'D': 7,
+        'E': 3,
+        'F': 6,
+        'G': 5,
+        'H': 3,
+        'I': 1,
+        'J': 0
+    }
+    return H_dist[n]
+
+
+def astaralgo(start_node,stop_node):
+    open_set = set(start_node)
+    close_set = set()
+    g = {}
+    parent = {}
+    g[start_node] = 0
+    parent[start_node] = start_node
+
+    while len(open_set)>0:
+        n = None
+        for v in open_set:
+            if(n == None or g[v] + heuristic(v) < g[n] + heuristic(n)):
+                n = v
+        
+        if(n==stop_node or Graph_nodes[n]==None):
+            pass
+        else:
+            for (m,w) in Graph_nodes[n]:
+                if(m not in open_set and m not in close_set):
+                    g[m] = g[n] + w
+                    parent[m] = n
+                    open_set.add(m)
+                else:
+                    if(g[m] > g[n] + w):
+                        g[m] = g[n] + w
+                        parent[m] = n
+                        if m in close_set:
+                            close_set.remove(m)
+                            open_set.add(m)
+
+        if(n==None):
+            print("path does not exist")
+            return None
+
+        if(n==stop_node):
+            path = []
+            while parent[n]!=n:
+                path.append(n)
+                n = parent[n]
+            path.append(start_node)
+            path.reverse()
+            return path
+        
+        open_set.remove(n)
+        close_set.add(n)
+
+    print('Path does not exist')
+    return None
+
+
+print("A*Search")
+print("Path",astaralgo('A','J'))
