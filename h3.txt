@@ -1,22 +1,113 @@
-Practical 3
+A)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import accuracy_score
 
-//SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+# load data
+iris = load_iris()
+X = iris.data
+Y = iris.target
 
-contract Practical3{
-    uint rollno;
-    string name;
+# split
+X_train,X_test,Y_train,Y_test = train_test_split(X,Y,test_size=0.25,random_state=0)
 
-    function studentdetails(uint _rollno,string memory _name)public {
-        rollno=_rollno;
-        name=_name;
-    }
+# model
+model = DecisionTreeClassifier()
 
-    function displayStudent()public view returns(uint,string memory){
-        return (rollno,name);
-    }
+# train
+model.fit(X_train,Y_train)
 
-    function addition(uint a,uint b)public pure returns(uint){
-        return a+b;
-    }
-}
+# predict
+pred = model.predict(X_test)
+
+# accuracy
+print(accuracy_score(Y_test,pred))
+
+# tree graph
+plt.figure(figsize=(10,8))
+plot_tree(model,feature_names=iris.feature_names,class_names=iris.target_names,filled=True)
+plt.show()
+B)
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+from mlxtend.plotting import plot_decision_regions
+
+# load data
+iris = load_iris()
+X = iris.data[:,2:]
+Y = iris.target
+
+# split
+X_train,X_test,Y_train,Y_test = train_test_split(X,Y,test_size=0.25,random_state=1)
+
+# model
+model = RandomForestClassifier(n_estimators=5)
+
+# train
+model.fit(X_train,Y_train)
+
+# predict
+pred = model.predict(X_test)
+
+# accuracy
+print(accuracy_score(Y_test,pred))
+
+# graph
+X_comb = np.vstack((X_train,X_test))
+Y_comb = np.hstack((Y_train,Y_test))
+
+plot_decision_regions(X_comb,Y_comb,model)
+plt.xlabel(iris.feature_names[2])
+plt.ylabel(iris.feature_names[3])
+plt.show()
+c)
+import pandas as pd
+import numpy as np
+from sklearn.datasets import load_diabetes
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+from mlxtend.plotting import plot_decision_regions
+import matplotlib.pyplot as plt
+
+diabetes = load_diabetes()
+
+X = diabetes.data[:,2:4]
+Y = (diabetes.target > np.median(diabetes.target)).astype(int)
+
+X_train, X_test, Y_train, Y_test = train_test_split(
+    X, Y, test_size=0.25, random_state=1
+)
+
+rfc = RandomForestClassifier(
+    n_estimators=5,
+    n_jobs=2,
+    random_state=1
+)
+
+rfc.fit(X_train, Y_train)
+
+Y_pred = rfc.predict(X_test)
+
+score = accuracy_score(Y_test, Y_pred)
+print(score)
+
+X_combined = np.vstack((X_train, X_test))
+Y_combined = np.hstack((Y_train, Y_test))
+
+fig, ax = plt.subplots(figsize=(7,7))
+
+plot_decision_regions(X_combined, Y_combined, rfc)
+
+plt.xlabel(diabetes.feature_names[2])
+plt.ylabel(diabetes.feature_names[3])
+
+plt.tight_layout()
+plt.show()
