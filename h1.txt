@@ -1,289 +1,611 @@
-Practical 1
+1)a)
+graph = {
+    'A':['B','C'],
+    'B':['D','E'],
+    'C':['F','G'],
+    'D':['H','I'],
+    'E':['J','K'],
+    'F':['L','M'],
+    'G':['N','O'],
+    'H':[],'I':[],'J':[],'K':[],'L':[],'M':[],'N':[],'O':[]
+}
 
-import hashlib
-import time
+queue = []
+visited = []
 
-class Block:
-    def __init__(self,index,timestamp,data,prior_hash=0):
-        self.index = index 
-        self.timestamp = timestamp
-        self.data = data
-        self.prior_hash = prior_hash
-        self.hash = self.create_hash()
+def bfs(start_node):
+    queue.append(start_node)
+    visited.append(start_node)
 
-    def create_hash(self):
-        blockstr = f"{self.index}{self.timestamp}{self.data}{self.prior_hash}".encode()
-        return hashlib.sha256(blockstr).hexdigest()
+    while queue:
+        n = queue.pop(0)
+        print(n,end=" ")
 
-class Blockchain:
-    def __init__(self):
-        self.chain=[self.create_genesis()]
+        for node in graph[n]:
+            if node not in visited:
+                queue.append(node)
+                visited.append(node)
 
-    def create_genesis(self):
-        return Block(0,str(time.localtime()),'',0)
+bfs("A")
 
-    def get_latest_block(self):
-        return self.chain[-1]
+
+
+1)b)
+graph = {
+    'A':['B','C'],
+    'B':['D','E'],
+    'C':['F','G'],
+    'D':['H','I'],
+    'E':['J','K'],
+    'F':['L','M'],
+    'G':['N','O'],
+    'H':[],'I':[],'J':[],'K':[],'L':[],'M':[],'N':[],'O':[]
+}
+
+stack = []
+visited = []
+
+def idfs(start_node):
+    stack.append(start_node)
+
+    while stack:
+        n = stack.pop()
+        print(n,end=" ")
+
+        if n not in visited:
+            visited.append(n)
+            stack.extend(reversed(graph[n]))
+
+idfs("A")
+
+
+
+1)c)
+graph = {
+    'A':['B','C'],
+    'B':['D','E'],
+    'C':['F','G'],
+    'D':['H','I'],
+    'E':['J','K'],
+    'F':['L','M'],
+    'G':['N','O'],
+    'H':[],'I':[],'J':[],'K':[],'L':[],'M':[],'N':[],'O':[]
+}
+
+def rdfs(start_node):
+    print(start_node,end=" ")
+    for node in graph[start_node]:
+        rdfs(node)
+
+rdfs("A")
+
+
+
+2)a)
+graph = {
+    'A': [('B', 1), ('C', 5)],
+    'B': [('D', 3), ('E', 2)],
+    'C': [('F', 1)],
+    'D': [('G', 4)],
+    'E': [('G', 6)],
+    'F': [('G', 2)],
+    'G': []
+}
+
+heuristic = {
+    'A': 7, 'B': 6, 'C': 2, 'D': 4, 'E': 4, 'F': 1, 'G': 0
+}
+
+visited = set()
+path = []
+
+def bestFS(current_node,target_node,cost_so_far=0,limit=float('inf')):
+
+    if current_node == target_node:
+        return path + [current_node], cost_so_far
     
-    def add_new_block(self,newblock):
-        newblock.prior_hash = self.get_latest_block().hash
-        newblock.hash = newblock.create_hash()
-        self.chain.append(newblock)
+    visited.add(current_node)
+    path.append(current_node)
 
-    def display_blockchain(self):
-        for i in range(len(self.chain)):
-            print("Block no:",i,"Data:",self.chain[i].data)
-            print("Block no:",i,"Hash:",self.chain[i].hash)
-            print("Block no:",i,"Prior Hash:",self.chain[i].prior_hash,"\n")
+    successors = []
 
-    def checkBC(self):
-        for i in range(1,len(self.chain)):
-            current = self.chain[i]
-            prev = self.chain[i-1]
-            if current.hash!=current.create_hash():
-                return False
-            if current.prior_hash!=prev.hash:
-                return False
-        return True
+    for (neighbor,edge_cost) in graph[current_node]:
+        estimated_cost = cost_so_far + edge_cost + heuristic[neighbor]
+        successors.append((estimated_cost,neighbor,edge_cost))
 
-MyBlockchain = Blockchain()
-MyBlockchain.add_new_block(Block(1,str(time.localtime()),'1000'))
-MyBlockchain.add_new_block(Block(2,str(time.localtime()),'2000'))
-MyBlockchain.add_new_block(Block(3,str(time.localtime()),'3000'))
-MyBlockchain.display_blockchain()
+    successors.sort()
+
+    for (estimated_cost,neighbor,edge_cost) in successors:
+        if estimated_cost > limit:
+            continue
+
+        result_path,result_cost = bestFS(
+            neighbor,
+            target_node,
+            cost_so_far + edge_cost,
+            min(limit,estimated_cost)
+        )
+
+        if result_path:
+            return result_path,result_cost
+
+    return None,float('inf')
 
 
-print("is valid ?",str(MyBlockchain.checkBC()))
-print("Changing Amount of block 1 from 1000 to 5000")
-MyBlockchain.chain[1].data='5000'
-print("is valid ?",str(MyBlockchain.checkBC()))
+path_result , cost = bestFS("A","E")
 
-print("Changing Hash of block 1 by creating new hash")
-MyBlockchain.chain[1].hash = MyBlockchain.chain[1].create_hash()
-print("is valid ?",str(MyBlockchain.checkBC()))
-MyBlockchain.display_blockchain()
+print("Path found:",path_result)
+print("Path cost:",cost)
 
-Practical 2
-//SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
 
-contract Datatypes{
 
-    struct Employe{
-        uint id;
-        string name;
-        string designation;
-        uint salary;
-    }
 
-    mapping(uint=>Employe)public employeDetails;
-    Employe[]public emp;
-
-    function addEmploye(
-        uint _id,
-        string memory _name,
-        string memory _designation,
-        uint _salary
-    )public {
-        emp.push(Employe(_id,_name,_designation,_salary));
-        employeDetails[_id]=Employe(_id,_name,_designation,_salary);
-    }
-}
-Practical 3
-
-//SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract Practical3{
-    uint rollno;
-    string name;
-
-    function studentdetails(uint _rollno,string memory _name)public {
-        rollno=_rollno;
-        name=_name;
-    }
-
-    function displayStudent()public view returns(uint,string memory){
-        return (rollno,name);
-    }
-
-    function addition(uint a,uint b)public pure returns(uint){
-        return a+b;
-    }
+2)b)
+Graph_nodes = {
+'A': [('B', 6), ('F', 3)],
+'B': [('A', 6), ('C', 3), ('D', 2)],
+'C': [('B', 3), ('D', 1), ('E', 5)],
+'D': [('B', 2), ('C', 1), ('E', 8)],
+'E': [('C', 5), ('D', 8), ('I', 5), ('J', 5)],
+'F': [('A', 3), ('G', 1), ('H', 7)],
+'G': [('F', 1), ('I', 3)],
+'H': [('F', 7), ('I', 2)],
+'I': [('E', 5), ('G', 3), ('H', 2), ('J', 3)],
+'J': []
 }
 
-Practical 4
-
-//SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract Donation {
-
-    address public owner;
-
-    constructor() {
-        owner = msg.sender;
+def heuristic(n):
+    H_dist = {
+        'A': 11,
+        'B': 6,
+        'C': 5,
+        'D': 7,
+        'E': 3,
+        'F': 6,
+        'G': 5,
+        'H': 3,
+        'I': 1,
+        'J': 0
     }
+    return H_dist[n]
 
-    // Function to donate ETH
-    function donate() public payable {}
 
-    // Owner withdraws all ETH
-    function withdraw() public returns (bool) {
+def astaralgo(start_node,stop_node):
+    open_set = set(start_node)
+    close_set = set()
+    g = {}
+    parent = {}
+    g[start_node] = 0
+    parent[start_node] = start_node
 
-        require(msg.sender == owner, "Only owner can withdraw");
+    while len(open_set)>0:
+        n = None
+        for v in open_set:
+            if(n == None or g[v] + heuristic(v) < g[n] + heuristic(n)):
+                n = v
+        
+        if(n==stop_node or Graph_nodes[n]==None):
+            pass
+        else:
+            for (m,w) in Graph_nodes[n]:
+                if(m not in open_set and m not in close_set):
+                    g[m] = g[n] + w
+                    parent[m] = n
+                    open_set.add(m)
+                else:
+                    if(g[m] > g[n] + w):
+                        g[m] = g[n] + w
+                        parent[m] = n
+                        if m in close_set:
+                            close_set.remove(m)
+                            open_set.add(m)
 
-        uint256 ctr_bal = address(this).balance;
+        if(n==None):
+            print("path does not exist")
+            return None
 
-        (bool success,) = owner.call{value: ctr_bal}("");
+        if(n==stop_node):
+            path = []
+            while parent[n]!=n:
+                path.append(n)
+                n = parent[n]
+            path.append(start_node)
+            path.reverse()
+            return path
+        
+        open_set.remove(n)
+        close_set.add(n)
 
-        return success;
-    }
+    print('Path does not exist')
+    return None
 
-    // View balance of caller
-    function viewMyBalance() public view returns(uint256){
-        uint256 myBalance = msg.sender.balance;
-        return myBalance;
-    }
-}
 
-Practical 56
+print("A*Search")
+print("Path",astaralgo('A','J'))
 
-// SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.7.0 <0.9.0;
 
-// Custom Errors
-error InsufficientDonationAmount(address sender, uint amt);
-error InsufficientAmount();
 
-contract Donation {
+3)a)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import accuracy_score
 
-    address owner;
+# load data
+iris = load_iris()
+X = iris.data
+Y = iris.target
 
-    constructor() {
-        owner = msg.sender;
-    }
+# split
+X_train,X_test,Y_train,Y_test = train_test_split(X,Y,test_size=0.25,random_state=0)
 
-    // Modifier
-    modifier only_owner(){
-        require(msg.sender == owner, "You're not the owner");
-        _;
-    }
+# model
+model = DecisionTreeClassifier()
 
-    // Donate Function
-    function donate() public payable {
+# train
+model.fit(X_train,Y_train)
 
-        if(msg.value == 0){
-            revert InsufficientDonationAmount(msg.sender, msg.value);
-        }
+# predict
+pred = model.predict(X_test)
 
-        if(msg.sender.balance <= 85e18){
-            revert InsufficientAmount();
-        }
-    }
+# accuracy
+print(accuracy_score(Y_test,pred))
 
-    // Withdraw Function
-    function withdraw() public payable only_owner returns(bool){
+# tree graph
+plt.figure(figsize=(10,8))
+plot_tree(model,feature_names=iris.feature_names,class_names=iris.target_names,filled=True)
+plt.show()
 
-        uint ctr_bal = address(this).balance;
 
-        (bool success,) = owner.call{value: ctr_bal}("");
 
-        return success;
-    }
+3)b)
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+from mlxtend.plotting import plot_decision_regions
 
-    // View Balance
-    function viewMyBalance() public view returns(uint){
-        return msg.sender.balance;
-    }
-}
+# load data
+iris = load_iris()
+X = iris.data[:,2:]
+Y = iris.target
 
-Practical 7
+# split
+X_train,X_test,Y_train,Y_test = train_test_split(X,Y,test_size=0.25,random_state=1)
 
-// SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.7.0 <0.9.0;
+# model
+model = RandomForestClassifier(n_estimators=5)
 
-// Custom errors
-error InsufficientAmount(address sender);
-error InsufficientDonationAmount(address sender, uint amt);
+# train
+model.fit(X_train,Y_train)
 
-contract Donation {
+# predict
+pred = model.predict(X_test)
 
-    // Event
-    event DonationMoreThan5Ether(address donor, uint amt);
+# accuracy
+print(accuracy_score(Y_test,pred))
 
-    address owner;
+# graph
+X_comb = np.vstack((X_train,X_test))
+Y_comb = np.hstack((Y_train,Y_test))
 
-    // Constructor
-    constructor() {
-        owner = msg.sender;
-    }
+plot_decision_regions(X_comb,Y_comb,model)
+plt.xlabel(iris.feature_names[2])
+plt.ylabel(iris.feature_names[3])
+plt.show()
 
-    // Modifier
-    modifier only_owner(){
-        require(msg.sender == owner,"You're not the owner");
-        _;
-    }
 
-    // Donate function
-    function donate() public payable {
 
-        if(msg.value == 0){
-            revert InsufficientDonationAmount(msg.sender,msg.value);
-        }
+3)c)
+import pandas as pd
+import numpy as np
+from sklearn.datasets import load_diabetes
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+from mlxtend.plotting import plot_decision_regions
+import matplotlib.pyplot as plt
 
-        if(msg.sender.balance <= 85e18){
-            revert InsufficientAmount(msg.sender);
-        }
+diabetes = load_diabetes()
 
-        if(msg.value > 5e18){
-            emit DonationMoreThan5Ether(msg.sender,msg.value);
-        }
-    }
+X = diabetes.data[:,2:4]
+Y = (diabetes.target > np.median(diabetes.target)).astype(int)
 
-    // Withdraw function
-    function withdraw() public payable only_owner returns(bool){
+X_train, X_test, Y_train, Y_test = train_test_split(
+    X, Y, test_size=0.25, random_state=1
+)
 
-        uint curr_bal = address(this).balance;
+rfc = RandomForestClassifier(
+    n_estimators=5,
+    n_jobs=2,
+    random_state=1
+)
 
-        (bool success,) = owner.call{value: curr_bal}("");
+rfc.fit(X_train, Y_train)
 
-        return success;
-    }
+Y_pred = rfc.predict(X_test)
 
-    // View balance
-    function viewMyBalance() public view returns(uint){
-        return msg.sender.balance;
-    }
-}
+score = accuracy_score(Y_test, Y_pred)
+print(score)
 
-Practical 8
+X_combined = np.vstack((X_train, X_test))
+Y_combined = np.hstack((Y_train, Y_test))
 
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.18;
+fig, ax = plt.subplots(figsize=(7,7))
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+plot_decision_regions(X_combined, Y_combined, rfc)
 
-contract MyNft is ERC721URIStorage, Ownable {
+plt.xlabel(diabetes.feature_names[2])
+plt.ylabel(diabetes.feature_names[3])
 
-    using Counters for Counters.Counter;
-    Counters.Counter private _tokenIds;
+plt.tight_layout()
+plt.show()
 
-    constructor() ERC721("Python", "PY") Ownable(msg.sender) {}
 
-    function mintNFT(address recipient, string memory tokenURI)
-        public
-        onlyOwner
-        returns(uint256)
-    {
-        _tokenIds.increment();
-        uint256 newItemId = _tokenIds.current();
 
-        _mint(recipient, newItemId);
-        _setTokenURI(newItemId, tokenURI);
 
-        return newItemId;
-    }
-}
+4)a)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.cluster import KMeans
+
+# load dataset
+iris = load_iris()
+X = iris.data[:, :2]
+
+# model
+kmeans = KMeans(n_clusters=3)
+
+# train
+kmeans.fit(X)
+
+# prediction
+y_kmeans = kmeans.predict(X)
+
+# plot clusters
+plt.scatter(X[:,0], X[:,1], c=y_kmeans)
+plt.xlabel("Sepal Length")
+plt.ylabel("Sepal Width")
+plt.title("K-Means Clustering")
+plt.show()
+
+
+
+4)b)
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.datasets import make_blobs
+
+# generate data
+X, y = make_blobs(n_samples=300, centers=4, random_state=42)
+
+# model
+kmeans = KMeans(n_clusters=4)
+
+# train
+kmeans.fit(X)
+
+# predict
+y_kmeans = kmeans.predict(X)
+
+# plot clusters
+plt.scatter(X[:,0], X[:,1], c=y_kmeans)
+plt.xlabel("Feature 1")
+plt.ylabel("Feature 2")
+plt.title("K-Means Clustering with Blobs")
+plt.show()
+
+
+
+5)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.preprocessing import LabelEncoder
+
+df = pd.read_csv("cars_dataset.csv")
+
+# Encode all columns
+le = LabelEncoder()
+for col in df.columns:
+    df[col] = le.fit_transform(df[col])
+
+X = df.drop('car', axis=1)
+y = df['car']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+model = SVC()
+model.fit(X_train, y_train)
+
+print("SVM Model Accuracy:", model.score(X_test, y_test))
+
+
+
+6)
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+# Load dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# Split dataset
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create AdaBoost model
+model = AdaBoostClassifier(n_estimators=90, learning_rate=1)
+
+# Train model
+model.fit(X_train, y_train)
+
+# Predict
+y_pred = model.predict(X_test)
+
+# Accuracy
+print("AdaBoost Accuracy:", accuracy_score(y_test, y_pred))
+
+
+
+7)
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score, f1_score, confusion_matrix, ConfusionMatrixDisplay
+
+# 1 Load dataset
+df = pd.read_csv("C:\\Users\\abhis\\OneDrive\\Desktop\\MyNetwork\\loan_data.csv")
+
+# 2 Visualization
+sns.countplot(data=df, x='purpose', hue='not.fully.paid')
+plt.xticks(rotation=45)
+plt.show()
+
+# 3 Convert text to numeric
+df = pd.get_dummies(df, columns=['purpose'], drop_first=True)
+
+# 4 Define features and target
+X = df.drop('not.fully.paid', axis=1)
+y = df['not.fully.paid']
+
+# 5 Split dataset
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+
+# 6 Train model
+model = GaussianNB()
+model.fit(X_train, y_train)
+
+# 7 Prediction
+y_pred = model.predict(X_test)
+
+# 8 Accuracy
+print("Accuracy:", accuracy_score(y_test, y_pred))
+
+# 9 F1 Score
+print("F1 Score:", f1_score(y_test, y_pred, average="weighted"))
+
+# 10 Confusion Matrix
+cm = confusion_matrix(y_test, y_pred)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["Fully Paid","Not Fully Paid"])
+disp.plot()
+plt.show()
+
+
+
+8)
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
+
+# Load dataset
+df = pd.read_csv("Social_Network_Ads.csv")
+
+# Features and Target
+X = df[['Age','EstimatedSalary']]
+y = df['Purchased']
+
+# Split data
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2)
+
+# Scaling
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test = sc.transform(X_test)
+
+# Train model
+model = KNeighborsClassifier(n_neighbors=5)
+model.fit(X_train,y_train)
+
+# Prediction
+y_pred = model.predict(X_test)
+
+# Accuracy
+print("Accuracy:", accuracy_score(y_test,y_pred))
+
+# Confusion Matrix
+cm = confusion_matrix(y_test,y_pred)
+print("Confusion Matrix:\n", cm)
+
+# Plot Confusion Matrix
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["Not Bought","Bought"])
+disp.plot()
+plt.show()
+
+
+
+9)import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori,association_rules
+
+dataset = [
+    ["Milk","Bread","Butter"],
+    ["Milk","Bread"],
+    ["Bread","Butter"],
+    ["Milk","Jam"],
+    ["Bread","Jam"],
+    ]
+
+te = TransactionEncoder()
+te_ary = te.fit_transform(dataset)
+
+df = pd.DataFrame(data=te_ary,columns=te.columns_)
+print(df)
+
+frequent_items = apriori(df,min_support=0.2,use_colnames=True)
+rules = association_rules(frequent_items,metric="lift",min_threshold=1)
+print(rules[['antecedents','consequents','support','confidence','lift']])
+
+
+
+10)a)
+import tensorflow as tf
+import datetime
+import numpy as np
+
+log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir)
+
+model = tf.keras.Sequential([
+    tf.keras.Input(shape=(1,)),
+    tf.keras.layers.Dense(1)
+])
+
+model.compile(optimizer="sgd", loss="mean_squared_error")
+
+xs = np.array([-1.0,0.0,1.0,2.0,3.0,4.0])
+ys = np.array([-3.0,-1.0,1.0,3.0,5.0,7.0])
+
+model.fit(xs, ys, epochs=10, callbacks=[tensorboard_callback])
+
+
+
+10)b)
+import tensorflow as tf
+import numpy as np
+
+features = np.array([[1,2],[3,4],[5,6],[7,8]])
+labels = np.array([0,1,0,1])
+
+dataset = tf.data.Dataset.from_tensor_slices((features,labels))
+
+dataset = dataset.shuffle(buffer_size=4).batch(2).repeat()
+
+for element in dataset.take(3):
+    print("Features ",element[0]," labels ",element[1])
