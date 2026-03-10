@@ -1,64 +1,74 @@
-Practical 1
+A)bfs
+graph = {
+    'A':['B','C'],
+    'B':['D','E'],
+    'C':['F','G'],
+    'D':['H','I'],
+    'E':['J','K'],
+    'F':['L','M'],
+    'G':['N','O'],
+    'H':[],'I':[],'J':[],'K':[],'L':[],'M':[],'N':[],'O':[]
+}
 
-import hashlib
-import time
+queue = []
+visited = []
 
-class Block:
-    def __init__(self,index,timestamp,data,prior_hash=0):
-        self.index = index 
-        self.timestamp = timestamp
-        self.data = data
-        self.prior_hash = prior_hash
-        self.hash = self.create_hash()
+def bfs(start_node):
+    queue.append(start_node)
+    visited.append(start_node)
 
-    def create_hash(self):
-        blockstr = f"{self.index}{self.timestamp}{self.data}{self.prior_hash}".encode()
-        return hashlib.sha256(blockstr).hexdigest()
+    while queue:
+        n = queue.pop(0)
+        print(n,end=" ")
 
-class Blockchain:
-    def __init__(self):
-        self.chain=[self.create_genesis()]
+        for node in graph[n]:
+            if node not in visited:
+                queue.append(node)
+                visited.append(node)
 
-    def create_genesis(self):
-        return Block(0,str(time.localtime()),'',0)
+bfs("A")
+B)idfs
+graph = {
+    'A':['B','C'],
+    'B':['D','E'],
+    'C':['F','G'],
+    'D':['H','I'],
+    'E':['J','K'],
+    'F':['L','M'],
+    'G':['N','O'],
+    'H':[],'I':[],'J':[],'K':[],'L':[],'M':[],'N':[],'O':[]
+}
 
-    def get_latest_block(self):
-        return self.chain[-1]
-    
-    def add_new_block(self,newblock):
-        newblock.prior_hash = self.get_latest_block().hash
-        newblock.hash = newblock.create_hash()
-        self.chain.append(newblock)
+stack = []
+visited = []
 
-    def display_blockchain(self):
-        for i in range(len(self.chain)):
-            print("Block no:",i,"Data:",self.chain[i].data)
-            print("Block no:",i,"Hash:",self.chain[i].hash)
-            print("Block no:",i,"Prior Hash:",self.chain[i].prior_hash,"\n")
+def idfs(start_node):
+    stack.append(start_node)
 
-    def checkBC(self):
-        for i in range(1,len(self.chain)):
-            current = self.chain[i]
-            prev = self.chain[i-1]
-            if current.hash!=current.create_hash():
-                return False
-            if current.prior_hash!=prev.hash:
-                return False
-        return True
+    while stack:
+        n = stack.pop()
+        print(n,end=" ")
 
-MyBlockchain = Blockchain()
-MyBlockchain.add_new_block(Block(1,str(time.localtime()),'1000'))
-MyBlockchain.add_new_block(Block(2,str(time.localtime()),'2000'))
-MyBlockchain.add_new_block(Block(3,str(time.localtime()),'3000'))
-MyBlockchain.display_blockchain()
+        if n not in visited:
+            visited.append(n)
+            stack.extend(reversed(graph[n]))
 
+idfs("A")
+C)rdfs
+graph = {
+    'A':['B','C'],
+    'B':['D','E'],
+    'C':['F','G'],
+    'D':['H','I'],
+    'E':['J','K'],
+    'F':['L','M'],
+    'G':['N','O'],
+    'H':[],'I':[],'J':[],'K':[],'L':[],'M':[],'N':[],'O':[]
+}
 
-print("is valid ?",str(MyBlockchain.checkBC()))
-print("Changing Amount of block 1 from 1000 to 5000")
-MyBlockchain.chain[1].data='5000'
-print("is valid ?",str(MyBlockchain.checkBC()))
+def rdfs(start_node):
+    print(start_node,end=" ")
+    for node in graph[start_node]:
+        rdfs(node)
 
-print("Changing Hash of block 1 by creating new hash")
-MyBlockchain.chain[1].hash = MyBlockchain.chain[1].create_hash()
-print("is valid ?",str(MyBlockchain.checkBC()))
-MyBlockchain.display_blockchain()
+rdfs("A")
