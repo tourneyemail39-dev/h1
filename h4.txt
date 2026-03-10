@@ -1,34 +1,49 @@
-Practical 4
+A)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.cluster import KMeans
 
-//SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+# load dataset
+iris = load_iris()
+X = iris.data[:, :2]
 
-contract Donation {
+# model
+kmeans = KMeans(n_clusters=3)
 
-    address public owner;
+# train
+kmeans.fit(X)
 
-    constructor() {
-        owner = msg.sender;
-    }
+# prediction
+y_kmeans = kmeans.predict(X)
 
-    // Function to donate ETH
-    function donate() public payable {}
+# plot clusters
+plt.scatter(X[:,0], X[:,1], c=y_kmeans)
+plt.xlabel("Sepal Length")
+plt.ylabel("Sepal Width")
+plt.title("K-Means Clustering")
+plt.show()
+B)
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.datasets import make_blobs
 
-    // Owner withdraws all ETH
-    function withdraw() public returns (bool) {
+# generate data
+X, y = make_blobs(n_samples=300, centers=4, random_state=42)
 
-        require(msg.sender == owner, "Only owner can withdraw");
+# model
+kmeans = KMeans(n_clusters=4)
 
-        uint256 ctr_bal = address(this).balance;
+# train
+kmeans.fit(X)
 
-        (bool success,) = owner.call{value: ctr_bal}("");
+# predict
+y_kmeans = kmeans.predict(X)
 
-        return success;
-    }
-
-    // View balance of caller
-    function viewMyBalance() public view returns(uint256){
-        uint256 myBalance = msg.sender.balance;
-        return myBalance;
-    }
-}
+# plot clusters
+plt.scatter(X[:,0], X[:,1], c=y_kmeans)
+plt.xlabel("Feature 1")
+plt.ylabel("Feature 2")
+plt.title("K-Means Clustering with Blobs")
+plt.show()
